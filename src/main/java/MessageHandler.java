@@ -1,3 +1,4 @@
+import model.RoutTableEntry;
 import org.apache.commons.lang3.StringUtils;
 import packets.RREP;
 import packets.RREQ;
@@ -20,7 +21,7 @@ public class MessageHandler {
             decoded = Converter.convertDecoded(decoded);
             var res = switch (decoded[0]) {
                 case 1 -> handleRREQ(decoded, prevHop);
-                case 2 -> handleRREP(decoded);
+                case 2 -> handleRREP(decoded, prevHop);
                 default -> throw new IllegalStateException("Unexpected value: " + decoded[0]);
             };
             res = Converter.prepareForEncoding(res);
@@ -34,20 +35,28 @@ public class MessageHandler {
 
     private static byte[] handleRREQ(byte[] decodedPacket, byte[] prevHop) {
         var packet = new RREQ(decodedPacket);
-        packet.increaseHopCount();
-        Node.addTableEntry(packet.getOriAddr(), prevHop, packet.getHopCount(), packet.getOriSeqNum());
+        var tableEntry = new RoutTableEntry(packet.getOriAddr(), prevHop, packet.getHopCount(), packet.getOriSeqNum(), true);
+
+        if (Node.addTableEntry(tableEntry)) {
+            Node.updateRouteLifetimeRREQ(tableEntry.getDestAddr());
+        }
 
         if (Arrays.equals(packet.getDestAddr(), Node.getADDR())) {
 //            return new RREP((byte) 0, packet.getOriAddr(), (byte) 63, Node.getADDR(), (byte) 0).getAsArray(); // todo life time
         }
+        packet.increaseHopCount();
         return packet.getBytes();
     }
 
-    private static byte[] handleRREP(byte[] decodedPacket) {
+    private static byte[] handleRREP(byte[] decodedPacket, byte[] prevHop) {
         var packet = new RREP(decodedPacket);
+        var tableEntry = new RoutTableEntry(packet.getOriAddr(), prevHop, packet.getHopCount(), packet.getDestSeqNum(), true);
+        if (Node.addTableEntry(tableEntry)) {
+            Node.updateRouteLifetimeRREP(tableEntry.getDestAddr(), tableEntry.getLifetime());
+        }
 
-        //todo: handle
-        return null;
+        packet.increaseHopCount();
+        return packet.getBytes();
     }
 
 
