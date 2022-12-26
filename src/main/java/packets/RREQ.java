@@ -2,17 +2,30 @@ package packets;
 
 import utils.Converter;
 
+import javax.swing.*;
 import java.util.Arrays;
 
+import static packets.RREQ.Flags.U;
+
 public class RREQ extends Packet {
+
+    public enum Flags {
+        U((byte) 0x1);
+
+        private byte value;
+
+        Flags(byte value) {
+            this.value = value;
+        }
+    }
 
     private final byte flag;
     private byte hopCount;
     private final byte reqId;
     private final byte[] destAddr;
-    private final byte destSeqNum;
+    private byte destSeqNum;
     private final byte[] oriAddr;
-    private final byte oriSeqNum;
+    private byte oriSeqNum;
 
 //    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, byte destSeqNum, byte[] oriAddr, byte oriSeqNum) {
 //        super((byte) 1);
@@ -26,9 +39,9 @@ public class RREQ extends Packet {
 //        updateArr();
 //    }
 
-    public RREQ(byte ... paket) {
+    public RREQ(byte... paket) {
         super((byte) 1);
-        var addrPlusSeq = Converter.convertAddrPlusSeqNum(new byte[]{paket[4], paket[5], paket[6],  paket[7], paket[8], paket[9], paket[10],  paket[11]});
+        var addrPlusSeq = Converter.convertAddrPlusSeqNum(new byte[]{paket[4], paket[5], paket[6], paket[7], paket[8], paket[9], paket[10], paket[11]});
 
         this.flag = paket[1];
         this.hopCount = paket[2];
@@ -68,14 +81,17 @@ public class RREQ extends Packet {
     }
 
     public byte getOriSeqNum() {
+        if (flag == U.value)
+            return oriSeqNum = 0;
         return oriSeqNum;
     }
 
+
     public byte[] getBytes() {
-        var convertedAddrSeqNum = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0],destAddr[1],destAddr[2], destAddr[3], destSeqNum,
-                oriAddr[0],oriAddr[1],oriAddr[2], oriAddr[3], oriSeqNum});
-        return new byte[]{type, flag, hopCount, reqId, convertedAddrSeqNum[0],convertedAddrSeqNum[1],convertedAddrSeqNum[2], convertedAddrSeqNum[3],
-                convertedAddrSeqNum[4],convertedAddrSeqNum[5],convertedAddrSeqNum[6], convertedAddrSeqNum[7]};
+        var convertedAddrSeqNum = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0], destAddr[1], destAddr[2], destAddr[3], destSeqNum,
+                oriAddr[0], oriAddr[1], oriAddr[2], oriAddr[3], oriSeqNum});
+        return new byte[]{type, flag, hopCount, reqId, convertedAddrSeqNum[0], convertedAddrSeqNum[1], convertedAddrSeqNum[2], convertedAddrSeqNum[3],
+                convertedAddrSeqNum[4], convertedAddrSeqNum[5], convertedAddrSeqNum[6], convertedAddrSeqNum[7]};
     }
 
     public void increaseHopCount() {

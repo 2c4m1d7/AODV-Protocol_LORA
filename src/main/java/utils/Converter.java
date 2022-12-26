@@ -112,7 +112,7 @@ public class Converter {
             @Override
             public byte[] apply(byte[] b) {
                 byte b1 = (byte) ((b[0] & 0x3f) >> 2);
-                byte b2 = (byte) (((b[0] & 0x03) << 2) | ((b[1] & 0x30) >>4));
+                byte b2 = (byte) (((b[0] & 0x03) << 2) | ((b[1] & 0x30) >> 4));
                 byte b3 = (byte) (b[1] & 0x0f);
                 byte b4 = (byte) ((b[2] & 0x3c) >> 2);
                 byte b5 = (byte) ((b[3] & 0x3f) | ((b[2] & 0x03) << 6));

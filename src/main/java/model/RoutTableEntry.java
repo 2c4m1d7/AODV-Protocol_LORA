@@ -1,20 +1,10 @@
 package model;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
+import utils.Timer;
 
 import static java.lang.Math.max;
-
 public class RoutTableEntry {
 
-    public static final int ACTIVE_ROUTE_TIMEOUT = 3000;
-    public static final int MY_ROUTE_TIMEOUT = 2 * ACTIVE_ROUTE_TIMEOUT;
-    public static final int NODE_TRAVERSAL_TIME = 40;
-    public static final int RREQ_RETRIES = 2;
-    public static final int NET_DIAMETER = 35;
-    public static final int NET_TRAVERSAL_TIME = 2 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
-    public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
 
     public static final byte MAX_SEQ_NUM = 0x3f;
     private byte hopCount;
@@ -22,7 +12,7 @@ public class RoutTableEntry {
     private byte[] destAddr;
     private byte[] nextHop;
     private boolean validRoute;
-    private byte active;
+    private boolean active;
     private long lifetime;
 
     public RoutTableEntry(byte[] destAddr, byte[] nextHop, byte hopCount, byte seq, boolean validRoute) {
@@ -35,15 +25,15 @@ public class RoutTableEntry {
 
     public void updateLifetimeRREQ() {
         if (isValidRoute()) {
-            var currentTime = System.currentTimeMillis();
-            long minimalLifetime = (currentTime + 2 * NET_TRAVERSAL_TIME - 2 * hopCount * NODE_TRAVERSAL_TIME);
+            var currentTime = Timer.getCurrentTimestamp();
+            long minimalLifetime = (currentTime + 2 *  Node.NET_TRAVERSAL_TIME - 2 * hopCount * Node.NODE_TRAVERSAL_TIME);
             long existingLifeTime = lifetime;
             lifetime = max(existingLifeTime, minimalLifetime);
         }
     }
 
     public void updateLifetimeRREP(long packetLifetime) {
-        lifetime = System.currentTimeMillis() + (packetLifetime <= 0 ? ACTIVE_ROUTE_TIMEOUT : packetLifetime);
+        lifetime = Timer.getCurrentTimestamp() + (packetLifetime <= 0 ? Node.ACTIVE_ROUTE_TIMEOUT : packetLifetime);
     }
 
     public long getLifetime() {
@@ -72,11 +62,11 @@ public class RoutTableEntry {
         return destAddr;
     }
 
-    public byte getActive() {
+    public boolean isActive() {
         return active;
     }
 
-    public void setActive(byte active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 

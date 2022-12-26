@@ -1,76 +1,31 @@
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.TemporalField;
 import java.util.*;
 
-import model.RoutTableEntry;
 import org.uncommons.maths.binary.BitString;
 import packets.RREP;
-import packets.RREQ;
 import utils.Converter;
+import utils.Timer;
 
 import static java.lang.System.*;
 import static java.lang.System.out;
 import static java.lang.Thread.sleep;
-import static model.RoutTableEntry.NET_TRAVERSAL_TIME;
-import static model.RoutTableEntry.NODE_TRAVERSAL_TIME;
 
 public class Main {
     static Scanner scanner = new Scanner(in);
 
     public static void main(String[] args) throws InterruptedException {
-//        var rreq = new RREQ((byte) 2, (byte) 0, (byte) 5, new byte[] {0,0,3}, (byte) 9, new byte[] {0,0,1}, (byte) 8).getBytes();
-//        var rreq = new byte[]{1,1,1,1};
-//        var converted = Converter.convertTo6Bit(rreq);
-//        out.println(Arrays.toString(converted));
-//        var encoded = Base64.getEncoder().encodeToString(converted);
-//        out.println("Encoded: "+encoded);
-//
-//        out.println("-----");
-//        var decoded = Base64.getDecoder().decode(encoded.getBytes());
-//        out.println("Decoded: " +Arrays.toString(decoded));
-//        var convertded = Converter.convertTo8Bit(decoded);
-//        out.print("Converted: "+ Arrays.toString(convertded));
-//        out.println("; Expected: "+ Arrays.toString(rreq));
 
-        var chiffre = "BCAHAAE/AAIB";
-        var packet = Base64.getDecoder().decode(chiffre); //BCAHAAEDAAIB -> [1, 2, 0, 7, 0, 0, 0, 1, 3, 0, 0, 0, 2, 1]  BCAHgkEDAAIB
-        out.println(Arrays.toString(packet));
-        var converted = Converter.convertDecoded(packet);
-        out.println(Arrays.toString(converted));
-        var rreq = new RREQ(converted);
-        out.println(rreq);
-//
-//        out.println(Arrays.toString(rreq.getBytes()));
-//        var reconvertedRreq = Converter.prepareForEncoding(rreq.getBytes());
-//        out.println(Base64.getEncoder().encodeToString(reconvertedRreq));
-//
-//        out.println(chiffre.equals(Base64.getEncoder().encodeToString(reconvertedRreq)));
-//        out.println(getBits(BitSet.valueOf(new byte[]{48})));
 
-//        var Addrs = Converter.prepareAddrPlusSeqNumToSend(new byte[]{0, 0, 0, 1, 5, 0, 0, 0, 7, 10});
-//        var rreq = new RREQ(new byte[]{1, 20, 3, 4, Addrs[0], Addrs[1], Addrs[2], Addrs[3], Addrs[4], Addrs[5], Addrs[6], Addrs[7]});
-//        var converted = Converter.prepareForEncoding(rreq.getBytes());
-//        out.println(Base64.getEncoder().encodeToString(converted));
-//        var tpl = Base64.getDecoder().decode("A/bb");
-//        out.println(Arrays.toString(tpl));
-//        var tpsconverted = Converter.convertDecoded(tpl);
-//        out.println(Arrays.toString(tpsconverted));
-//        var lifetime = (((int) tpsconverted[3])  | (((int) tpsconverted[2]) << 6) | ((((int) tpsconverted[1]) << 12)));
-//        out.println( lifetime);
-//        var lifetimeback = new byte[]{(byte) (lifetime >> 12), (byte) ((lifetime >> 6) & 0x3f), (byte) (lifetime & 0x3f)};
-//        out.println(Arrays.toString(lifetimeback));
+        var time = Timer.getCurrentTimestamp();
+        out.println(time);
+        var rrep = new RREP((int) Math.abs((time - (time+500)) % 0x3ffff), new byte[]{0, 0, 0, 1}, (byte) 5, new byte[]{0, 0, 0, 11}, (byte) 0);
+        var converted = Converter.prepareForEncoding(rrep.getBytes());
+        out.println(Arrays.toString(rrep.getBytes()));
+        out.println(Base64.getEncoder().encodeToString(converted));
+        out.println(new RREP(Converter.convertDecoded(converted)));
 
-//        var decodedRREP = Base64.getDecoder().decode("C/bbASMPASUA");
-//        var converted = Converter.convertDecoded(decodedRREP);
-//        out.println(Arrays.toString(converted));
-//        var rrep = new RREP(converted);
-//        out.println(rrep);
-//
-//        var reconv = Converter.prepareForEncoding(rrep.getBytes());
-//        out.println(Base64.getEncoder().encodeToString(reconv));
+//        var lifet = new byte[]{(byte) ((lifetime >> 12) & 0x3f), (byte) ((lifetime >> 6) & 0x3f), (byte) (lifetime & 0x3f)};
+//        out.println(Arrays.toString(lifet));
+//        out.println((((int) lifet[2])  | (((int) lifet[1]) << 6) | ((((int) lifet[0]) << 12))));
 
 
 //        Connection connection = null;
