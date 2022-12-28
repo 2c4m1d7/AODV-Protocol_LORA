@@ -1,5 +1,5 @@
 [source](https://gitlab.rz.htw-berlin.de/s0531522/tms-lora-documentation/-/blob/main/README.md)
-# AODV-Protocol_LORA
+# LoRa-AODV
 
 - [LoRa-AODV](#lora-aodv)
 - [User Data (UD)](#user-data-ud)
@@ -20,13 +20,16 @@
  0           1           2           3
  0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5 0 1 2 3 4 5
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|    Type   |             Userdata              |
+|    Type   |    Destination Adress         | UD|
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    User data                  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ```
 | Field | Value |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Type | 0 |
-| Userdata | Userdata, length 0-244|
+| Destination Adress |The address of the destination for which user data is desired. |
+| User data (UD) | Userdata, length 0-228|
 
 # Route Request (RREQ)
 ```
@@ -144,7 +147,7 @@ In the case when no (valid) route is found:
 4. If the Update/Create is triggered by an RREP
 	1. Mark the route route as `Active`.
 	2. Set the `Valid Sequence Number`-flag to tru or if none exists, set the `Valid Sequence Number`-flag to false.
-	3. Set the route `Next Hop` to the RREP `Next Hop` Value.
+	3. Set the `Next Hop` to the Sender of the RREP.
 	4. Set the route `Hop Count` to the RREP value.
 	5. Set the route `Lifetime` to `CURRENT_TIMESTAMP` + `Lifetime` of RREP, if not `Lifetime` is given, use `ACTIVE_ROUTE_TIMEOUT`
 	6. Set the route `Destination Sequence Number` from RREP value or max of (`Destination Sequence Number` of the route,` Originator Sequence Number` of the RREP).
