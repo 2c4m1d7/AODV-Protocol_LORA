@@ -1,8 +1,13 @@
 import java.util.*;
 
+import model.ForwardRoute;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.uncommons.maths.binary.BitString;
 import packets.RREP;
+import packets.RREQ;
 import utils.Converter;
+import utils.MyArrayUtils;
 import utils.Timer;
 
 import static java.lang.System.*;
@@ -12,21 +17,16 @@ import static java.lang.Thread.sleep;
 public class Main {
     static Scanner scanner = new Scanner(in);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
 
+        var decoded = Base64.getDecoder().decode("BBACAAEAAAMI");
+        out.println(Arrays.toString(decoded));
+        byte[] converted = Converter.convertDecoded(decoded);
+        out.println(Arrays.toString(converted));
+        var rreq = new RREQ(converted);
+        out.println(Arrays.toString(rreq.getBytes()));
 
-        var time = Timer.getCurrentTimestamp();
-        out.println(time);
-        var rrep = new RREP((int) Math.abs((time - (time+500)) % 0x3ffff), new byte[]{0, 0, 0, 1}, (byte) 5, new byte[]{0, 0, 0, 11}, (byte) 0);
-        var converted = Converter.prepareForEncoding(rrep.getBytes());
-        out.println(Arrays.toString(rrep.getBytes()));
-        out.println(Base64.getEncoder().encodeToString(converted));
-        out.println(new RREP(Converter.convertDecoded(converted)));
-
-//        var lifet = new byte[]{(byte) ((lifetime >> 12) & 0x3f), (byte) ((lifetime >> 6) & 0x3f), (byte) (lifetime & 0x3f)};
-//        out.println(Arrays.toString(lifet));
-//        out.println((((int) lifet[2])  | (((int) lifet[1]) << 6) | ((((int) lifet[0]) << 12))));
-
+        out.println(Arrays.toString(ArrayUtils.removeAll(converted, converted.length-1, converted.length-2, converted.length-3, converted.length-4)));
 
 //        Connection connection = null;
 //        while (true) {

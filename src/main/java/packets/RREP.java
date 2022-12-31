@@ -53,7 +53,7 @@ public class RREP extends Packet {
         return hopCount;
     }
 
-    public void increaseHopCount() {
+    public void incrementHopCount() {
         this.hopCount++;
     }
 

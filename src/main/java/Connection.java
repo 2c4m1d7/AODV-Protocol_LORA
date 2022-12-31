@@ -1,12 +1,19 @@
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import utils.Converter;
+import utils.MyArrayUtils;
+import utils.Parser;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
+
+import static java.lang.Thread.*;
 
 public record Connection(SerialPort port) {
 
@@ -57,13 +64,23 @@ public record Connection(SerialPort port) {
             event.getSerialPort().readBytes(buffer, buffer.length);
 
             try {
-               var answer =  MessageHandler.handle(buffer);
-                if (answer != null){
-                    send("AT+SEND="+ answer.length());
-                    send(answer);
+                var answer = MessageHandler.handle(buffer);
+                if (answer != null) {
+                    if (answer.length > 12) {
+                        byte[] addr = MyArrayUtils.getRangeArray(answer, answer.length - 5, answer.length - 1);
+
+                        send("AT+DEST="+ Parser.parseBytesToAddr(addr));
+                        sleep(1000);
+                        answer = ArrayUtils.removeAll(answer, answer.length-1, answer.length-2, answer.length-3, answer.length-4);
+                        answer = Converter.prepareForEncoding(answer);
+                        answer = Base64.getEncoder().encode(answer);
+                    }
+                    send("AT+SEND=" + answer.length+"\r\n".length());
+                    sleep(1000);
+                    send(new String(answer));
                 }
 
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
 

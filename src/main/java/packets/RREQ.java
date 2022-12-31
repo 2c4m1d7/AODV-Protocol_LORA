@@ -2,7 +2,6 @@ package packets;
 
 import utils.Converter;
 
-import javax.swing.*;
 import java.util.Arrays;
 
 import static packets.RREQ.Flags.U;
@@ -16,6 +15,10 @@ public class RREQ extends Packet {
 
         Flags(byte value) {
             this.value = value;
+        }
+
+        public byte getValue() {
+            return value;
         }
     }
 
@@ -94,7 +97,7 @@ public class RREQ extends Packet {
                 convertedAddrSeqNum[4], convertedAddrSeqNum[5], convertedAddrSeqNum[6], convertedAddrSeqNum[7]};
     }
 
-    public void increaseHopCount() {
+    public void incrementHopCount() {
         this.hopCount++;
     }
 

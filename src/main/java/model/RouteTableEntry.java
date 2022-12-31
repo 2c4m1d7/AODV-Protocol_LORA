@@ -3,7 +3,7 @@ package model;
 import utils.Timer;
 
 import static java.lang.Math.max;
-public class RoutTableEntry {
+public class RouteTableEntry {
 
 
     public static final byte MAX_SEQ_NUM = 0x3f;
@@ -15,7 +15,7 @@ public class RoutTableEntry {
     private boolean active;
     private long lifetime;
 
-    public RoutTableEntry(byte[] destAddr, byte[] nextHop, byte hopCount, byte seq, boolean validRoute) {
+    public RouteTableEntry(byte[] destAddr, byte[] nextHop, byte hopCount, byte seq, boolean validRoute) {
         this.hopCount = hopCount;
         this.seq = seq;
         this.destAddr = destAddr;
@@ -44,7 +44,7 @@ public class RoutTableEntry {
         return hopCount;
     }
 
-    public RoutTableEntry setHopCount(byte hopCount) {
+    public RouteTableEntry setHopCount(byte hopCount) {
         this.hopCount = hopCount;
         return this;
     }
@@ -53,7 +53,7 @@ public class RoutTableEntry {
         return seq;
     }
 
-    public RoutTableEntry setSeq(byte seq) {
+    public RouteTableEntry setSeq(byte seq) {
         this.seq = seq;
         return this;
     }
@@ -70,7 +70,7 @@ public class RoutTableEntry {
         this.active = active;
     }
 
-    public RoutTableEntry setDestAddr(byte[] destAddr) {
+    public RouteTableEntry setDestAddr(byte[] destAddr) {
         this.destAddr = destAddr;
         return this;
     }
@@ -79,7 +79,7 @@ public class RoutTableEntry {
         return nextHop;
     }
 
-    public RoutTableEntry setNextHop(byte[] nextHop) {
+    public RouteTableEntry setNextHop(byte[] nextHop) {
         this.nextHop = nextHop;
         return this;
     }
@@ -88,7 +88,7 @@ public class RoutTableEntry {
         return validRoute;
     }
 
-    public RoutTableEntry setValidRoute(boolean validRoute) {
+    public RouteTableEntry setValidRoute(boolean validRoute) {
         this.validRoute = validRoute;
         return this;
     }
