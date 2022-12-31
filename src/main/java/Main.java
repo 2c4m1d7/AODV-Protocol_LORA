@@ -27,7 +27,7 @@ public class Main {
         var rreq = new RREQ(converted);
         out.println(Arrays.toString(rreq.getBytes()));
 
-        out.println(Arrays.toString(ArrayUtils.removeAll(converted, converted.length-1, converted.length-2, converted.length-3, converted.length-4)));
+        out.println(Arrays.toString(ArrayUtils.removeAll(converted, converted.length - 1, converted.length - 2, converted.length - 3, converted.length - 4)));
 
 //        Connection connection = null;
 //        while (true) {
