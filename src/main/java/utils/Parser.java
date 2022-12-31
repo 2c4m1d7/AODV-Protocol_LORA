@@ -18,7 +18,7 @@ public class Parser {
         for (byte b : bytes) {
             res += Integer.toHexString(b);
         }
-        return res;
+        return res.toUpperCase();
     }
 
 }
