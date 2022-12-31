@@ -1,6 +1,7 @@
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+import model.Node;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import utils.Converter;
@@ -28,7 +29,6 @@ public record Connection(SerialPort port) {
     }
 
     public boolean connect() {
-        System.out.println(port.isOpen());
         if (!port.isOpen() && !port.openPort(2000)) {
             return false;
         }
@@ -62,28 +62,37 @@ public record Connection(SerialPort port) {
         public void serialEvent(SerialPortEvent event) {
             byte[] buffer = new byte[event.getSerialPort().bytesAvailable()];
             event.getSerialPort().readBytes(buffer, buffer.length);
-
+            //test
+            printInfo();
             try {
                 var answer = MessageHandler.handle(buffer);
                 if (answer != null) {
                     if (answer.length > 12) {
                         byte[] addr = MyArrayUtils.getRangeArray(answer, answer.length - 5, answer.length - 1);
 
-                        send("AT+DEST="+ Parser.parseBytesToAddr(addr));
+                        send("AT+DEST=" + Parser.parseBytesToAddr(addr));
                         sleep(1000);
-                        answer = ArrayUtils.removeAll(answer, answer.length-1, answer.length-2, answer.length-3, answer.length-4);
-                        answer = Converter.prepareForEncoding(answer);
-                        answer = Base64.getEncoder().encode(answer);
+                        answer = ArrayUtils.removeAll(answer, answer.length - 1, answer.length - 2, answer.length - 3, answer.length - 4);
                     }
-                    send("AT+SEND=" + answer.length+"\r\n".length());
+                    answer = Converter.prepareForEncoding(answer);
+                    answer = Base64.getEncoder().encode(answer);
+
+                    send("AT+SEND=" + new String(answer).length() + "\r\n".length());
                     sleep(1000);
                     send(new String(answer));
                 }
-
+                System.out.println("-------------------------");
+                printInfo();
+                System.out.println("***************************");
             } catch (IOException | InterruptedException e) {
                 throw new RuntimeException(e);
             }
 
+        }
+
+        private void printInfo() {
+            System.out.println("My address = " + Arrays.toString(Node.getADDR()));
+            System.out.println(Node.getInfo());
         }
     }
 }

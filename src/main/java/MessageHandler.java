@@ -39,7 +39,7 @@ public class MessageHandler {
     private static byte[] handleRREQ(byte[] decodedPacket, byte[] prevHop) {
         var rreq = new RREQ(decodedPacket);
         rreq.incrementHopCount();
-        var hopCount = Optional.of(Node.findRoute(rreq.getDestAddr()).getHopCount()).orElse(Node.OVER_MAX);
+        byte hopCount = Optional.ofNullable(Node.findRoute(rreq.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, Node.OVER_MAX, (byte) 0, null))).get().getHopCount();
         var forwardRoute = new ForwardRoute(rreq.getDestAddr(), rreq.getOriAddr(), hopCount, (rreq.getFlag() == RREQ.Flags.U.getValue()) ? -1 : rreq.getOriSeqNum(), null); // todo: OVER_MAX ?
         var reverseRoute = new ReverseRoute(rreq.getOriAddr(), rreq.getDestAddr(), rreq.getHopCount(), rreq.getDestSeqNum(), prevHop);
 
@@ -51,7 +51,7 @@ public class MessageHandler {
         }
 
         //Update forward route to originator if exists
-        Optional.of(Node.findRoute(rreq.getOriAddr()))
+        Optional.ofNullable(Node.findRoute(rreq.getOriAddr()))
                 .ifPresentOrElse(r -> {
                     r.setHopCount(rreq.getHopCount());
                     r.setNextHop(prevHop);

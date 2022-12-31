@@ -1,6 +1,9 @@
+import java.io.IOException;
 import java.util.*;
 
+import com.fazecast.jSerialComm.SerialPort;
 import model.ForwardRoute;
+import model.Node;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.uncommons.maths.binary.BitString;
@@ -20,31 +23,32 @@ public class Main {
 
     public static void main(String[] args) {
 
-        var decoded = Base64.getDecoder().decode("BBACAAEAAAMI");
-        out.println(Arrays.toString(decoded));
-        byte[] converted = Converter.convertDecoded(decoded);
-        out.println(Arrays.toString(converted));
-        var rreq = new RREQ(converted);
-        out.println(Arrays.toString(rreq.getBytes()));
+//        var decoded = Base64.getDecoder().decode("BBACAAEAAAMI");
+//        out.println(Arrays.toString(decoded));
+//        byte[] converted = Converter.convertDecoded(decoded);
+//        out.println(Arrays.toString(converted));
+//        var rreq = new RREQ(converted);
+//        out.println(Arrays.toString(rreq.getBytes()));
+//
 
-        out.println(Arrays.toString(ArrayUtils.removeAll(converted, converted.length - 1, converted.length - 2, converted.length - 3, converted.length - 4)));
 
-//        Connection connection = null;
-//        while (true) {
-//            if (connection == null) {
-//                connection = setConnection();
-//            } else {
-//                var m = scanner.nextLine();
-//                try {
-//                    if (m.length() > 0 && !connection.send(m)) {
-//                        connection = null;
-//                    }
-//                } catch (IOException e) {
-//                    err.println("Failed");
-//                    connection = null;
-//                }
-//            }
-//        }
+
+        Connection connection = null;
+        while (true) {
+            if (connection == null) {
+                connection = setConnection();
+            } else {
+                var m = scanner.nextLine();
+                try {
+                    if (m.length() > 0 && !connection.send(m)) {
+                        connection = null;
+                    }
+                } catch (IOException e) {
+                    err.println("Failed");
+                    connection = null;
+                }
+            }
+        }
 
     }
 
@@ -92,7 +96,7 @@ public class Main {
 
     private static Connection setConnection() {
         Connection connection;
-//        var port = SerialPort.getCommPort("/dev/ttys002");
+        var port = SerialPort.getCommPort("/dev/ttys005");
 
         var ports = Connection.getPorts();
         for (int i = 0; i < ports.length; i++) {
@@ -103,8 +107,8 @@ public class Main {
         if (num < 0 || num >= ports.length) {
             return null;
         }
-        connection = new Connection(ports[num]);
-//        connection = new Connection(port);
+//        connection = new Connection(ports[num]);
+        connection = new Connection(port);
         if (connection.connect()) {
             out.println("Opened port: " + connection.port().getDescriptivePortName());
             return connection;

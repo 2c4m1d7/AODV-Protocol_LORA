@@ -3,10 +3,7 @@ package model;
 import packets.RREP;
 import packets.RREQ;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Node {
     public static final int ACTIVE_ROUTE_TIMEOUT = 3000;
@@ -22,13 +19,36 @@ public class Node {
     private Node() {
     }
 
-    private static class ProcessedRREQInfo {
+    public static class ProcessedRREQInfo  {
         private final byte requestID;
         private final byte[] oriAddr;
 
         public ProcessedRREQInfo(byte requestID, byte[] oriAddr) {
             this.requestID = requestID;
             this.oriAddr = oriAddr;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ProcessedRREQInfo that = (ProcessedRREQInfo) o;
+            return requestID == that.requestID && Arrays.equals(oriAddr, that.oriAddr);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(requestID);
+            result = 31 * result + Arrays.hashCode(oriAddr);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "ProcessedRREQInfo{" +
+                    "requestID=" + requestID +
+                    ", oriAddr=" + Arrays.toString(oriAddr) +
+                    '}';
         }
     }
 
@@ -46,11 +66,12 @@ public class Node {
         return ADDR;
     }
 
-    public static byte getSeqNum(){
+    public static byte getSeqNum() {
         return SEQ_NUM;
     }
-    public static void incrementSeqNum(){
-        SEQ_NUM = (byte) ((SEQ_NUM+1) % 0x3f);
+
+    public static void incrementSeqNum() {
+        SEQ_NUM = (byte) ((SEQ_NUM + 1) % 0x3f);
     }
 
     public static boolean updateRouteEntry(ForwardRoute control) {
@@ -65,6 +86,7 @@ public class Node {
         }
         return true;
     }
+
     public static boolean updateReverseRouteEntry(ReverseRoute control) {
         var entry = REVERSE_ROUTE_TABLE.putIfAbsent(control.getDestAddr(), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
@@ -81,6 +103,7 @@ public class Node {
     public static void updateRouteLifetimeRREQ(byte[] destAddr) {
         ROUTE_TABLE.get(destAddr).updateLifetimeRREQ();
     }
+
     public static void updateReverseRouteLifetimeRREQ(byte[] destAddr) {
         REVERSE_ROUTE_TABLE.get(destAddr).updateLifetimeRREQ();
     }
@@ -101,10 +124,11 @@ public class Node {
         return check;
     }
 
-    public static ForwardRoute findRoute(byte[] destAddr){
+    public static ForwardRoute findRoute(byte[] destAddr) {
         return ROUTE_TABLE.get(destAddr); // destAddr
     }
-    public static ReverseRoute findReverseRoute(byte[] destAddr){
+
+    public static ReverseRoute findReverseRoute(byte[] destAddr) {
         return REVERSE_ROUTE_TABLE.get(destAddr);
     }
 
@@ -117,4 +141,13 @@ public class Node {
                 && (route.getSeq() >= rreq.getDestSeqNum())) ? route : null;
     }
 
+    /**
+     * For Testing
+     */
+    public static String getInfo() {
+        return "Node{processedRREQ: " + processedRREQ +
+                "\nROUTE_TABLE: " + ROUTE_TABLE +
+                "\nREVERSE_ROUTE_TABLE: " + REVERSE_ROUTE_TABLE +
+                "\nSEQ_NUM: " + SEQ_NUM + "}";
+    }
 }
