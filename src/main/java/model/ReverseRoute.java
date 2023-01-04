@@ -21,6 +21,18 @@ public class ReverseRoute extends Route {
         this.prevHop = prevHop;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReverseRoute that = (ReverseRoute) o;
+        return Arrays.equals(prevHop, that.prevHop);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(prevHop);
+    }
 
     @Override
     public String toString() {

@@ -30,17 +30,16 @@ public class RREQ extends Packet {
     private final byte[] oriAddr;
     private byte oriSeqNum;
 
-//    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, byte destSeqNum, byte[] oriAddr, byte oriSeqNum) {
-//        super((byte) 1);
-//        this.flag = flag;
-//        this.hopCount = hopCount;
-//        this.reqId = reqId;
-//        this.destAddr = destAddr;
-//        this.destSeqNum = destSeqNum;
-//        this.oriAddr = oriAddr;
-//        this.oriSeqNum = oriSeqNum;
-//        updateArr();
-//    }
+    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, byte destSeqNum, byte[] oriAddr, byte oriSeqNum) {
+        super((byte) 1);
+        this.flag = flag;
+        this.hopCount = hopCount;
+        this.reqId = reqId;
+        this.destAddr = destAddr;
+        this.destSeqNum = destSeqNum;
+        this.oriAddr = oriAddr;
+        this.oriSeqNum = oriSeqNum;
+    }
 
     public RREQ(byte... paket) {
         super((byte) 1);

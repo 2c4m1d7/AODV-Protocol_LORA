@@ -18,7 +18,7 @@ public class MessageHandler {
 
     public static byte[] handle(byte[] bytes) {
         var s = StringUtils.substringBefore(new String(bytes), "\r");
-        var addr = StringUtils.substringBetween(s, ",", ",");
+        var addr = Optional.ofNullable(StringUtils.substringBetween(s, ",", ",")).orElse("");
         if (s.contains("LR")) {
             var arr = s.split(",");
             var prevHop = Parser.parseAddrToBytes(arr[1]);
@@ -28,9 +28,9 @@ public class MessageHandler {
             return switch (decoded[0]) {
                 case 1 -> handleRREQ(decoded, prevHop);
                 case 2 -> handleRREP(decoded, prevHop);
-                default -> throw new IllegalStateException("Unexpected value: " + decoded[0]);
+                default -> null;
             };
-        } else if (addr.length() == 4 && s.length() == 10) {
+        } else if (addr.length() == 4 && s.contains("AT")) {
             Node.setADDR(Parser.parseAddrToBytes(addr));
         }
         return null;
@@ -50,7 +50,7 @@ public class MessageHandler {
             Node.updateReverseRouteLifetimeRREQ(reverseRoute.getDestAddr());
         }
 
-        //Update forward route to originator if exists
+        //Update forward route to originator
         Optional.ofNullable(Node.findRoute(rreq.getOriAddr()))
                 .ifPresentOrElse(r -> {
                     r.setHopCount(rreq.getHopCount());
@@ -59,7 +59,7 @@ public class MessageHandler {
                         Node.updateRouteLifetimeRREQ(r.getDestAddr());
                     }
                 }, () -> {
-                    var r = new ForwardRoute(rreq.getOriAddr(), rreq.getDestAddr(), hopCount, (rreq.getFlag() == RREQ.Flags.U.getValue()) ? -1 : rreq.getOriSeqNum(), prevHop);
+                    var r = new ForwardRoute(rreq.getOriAddr(), rreq.getDestAddr(), rreq.getHopCount(), (rreq.getFlag() == RREQ.Flags.U.getValue()) ? -1 : rreq.getOriSeqNum(), prevHop);
                     if (Node.updateRouteEntry(r)) {
                         Node.updateRouteLifetimeRREQ(r.getDestAddr());
                     }
@@ -70,7 +70,7 @@ public class MessageHandler {
         }
 
         var route = Node.validRouteExists(rreq);
-        if (Arrays.equals(rreq.getDestAddr(), Node.getADDR())) { //todo ? Node.validRouteExists(rreq)
+        if (Arrays.equals(rreq.getDestAddr(), Node.getADDR())) {
             forwardRoute.setDestAddr(reverseRoute.getDestAddr()).setSourceAddr(reverseRoute.getSourceAddr()).setHopCount(reverseRoute.getHopCount());
             forwardRoute.setNextHop(reverseRoute.getPrevHop());
             if (Node.updateRouteEntry(forwardRoute)) {
@@ -81,7 +81,7 @@ public class MessageHandler {
             }
             return new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getOriAddr(), Node.getSeqNum(), rreq.getDestAddr(), (byte) 0).getBytes();
         } else if (route != null) {
-            return new RREP((int) Math.abs((route.getLifetime() - Timer.getCurrentTimestamp()) % 0x3ffff), rreq.getOriAddr(), route.getSeq(), rreq.getDestAddr(), route.getHopCount()).getBytes(); //todo ? route.getDestAddr() or my addr?
+            return new RREP((int) Math.abs((route.getLifetime() - Timer.getCurrentTimestamp()) % 0x3ffff), rreq.getOriAddr(), route.getSeq(), rreq.getDestAddr(), route.getHopCount()).getBytes();
         }
 
         return rreq.getBytes();
@@ -101,7 +101,7 @@ public class MessageHandler {
             Node.updateRouteLifetimeRREP(forwardRoute.getDestAddr(), rrep.getLifetime());
         }
 
-        //Update forward route to originator if exists
+        //Update forward route to originator
         Optional.of(Node.findRoute(rrep.getOriAddr()))
                 .ifPresentOrElse(r -> {
                     r.setHopCount(rrep.getHopCount());

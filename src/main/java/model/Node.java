@@ -53,8 +53,8 @@ public class Node {
     }
 
     private static final Set<ProcessedRREQInfo> processedRREQ = new HashSet<>();
-    private static final Map<byte[], ForwardRoute> ROUTE_TABLE = new HashMap<>();
-    private static final Map<byte[], ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
+    private static final Map<Integer, ForwardRoute> ROUTE_TABLE = new HashMap<>();
+    private static final Map<Integer, ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
     private static byte[] ADDR;
     private static byte SEQ_NUM = 0;
 
@@ -75,12 +75,12 @@ public class Node {
     }
 
     public static boolean updateRouteEntry(ForwardRoute control) {
-        var entry = ROUTE_TABLE.putIfAbsent(control.getDestAddr(), control);
+        var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
             if (entry.getSeq() == -1 // todo ? the sequence number is unknown
                     || control.getSeq() > entry.getSeq()
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
-                ROUTE_TABLE.put(control.getDestAddr(), control);
+                ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
                 return true;
             } else return false;
         }
@@ -88,12 +88,12 @@ public class Node {
     }
 
     public static boolean updateReverseRouteEntry(ReverseRoute control) {
-        var entry = REVERSE_ROUTE_TABLE.putIfAbsent(control.getDestAddr(), control);
+        var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
             if (entry.getSeq() == -1 // todo ? the sequence number is unknown
                     || control.getSeq() > entry.getSeq()
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
-                REVERSE_ROUTE_TABLE.put(control.getDestAddr(), control);
+                REVERSE_ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
                 return true;
             } else return false;
         }
@@ -101,19 +101,19 @@ public class Node {
     }
 
     public static void updateRouteLifetimeRREQ(byte[] destAddr) {
-        ROUTE_TABLE.get(destAddr).updateLifetimeRREQ();
+        ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREQ();
     }
 
     public static void updateReverseRouteLifetimeRREQ(byte[] destAddr) {
-        REVERSE_ROUTE_TABLE.get(destAddr).updateLifetimeRREQ();
+        REVERSE_ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREQ();
     }
 
     public static void updateRouteLifetimeRREP(byte[] destAddr, long lifetime) {
-        ROUTE_TABLE.get(destAddr).updateLifetimeRREP(lifetime);
+        ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREP(lifetime);
     }
 
     public static void updateReverseRouteLifetimeRREP(byte[] oriAddr, long lifetime) {
-        REVERSE_ROUTE_TABLE.get(oriAddr).updateLifetimeRREP(lifetime);
+        REVERSE_ROUTE_TABLE.get(Arrays.hashCode(oriAddr)).updateLifetimeRREP(lifetime);
     }
 
     public static boolean RREQWasProcessed(RREQ rreq) {
@@ -125,15 +125,15 @@ public class Node {
     }
 
     public static ForwardRoute findRoute(byte[] destAddr) {
-        return ROUTE_TABLE.get(destAddr); // destAddr
+        return ROUTE_TABLE.get(Arrays.hashCode(destAddr)); // destAddr
     }
 
     public static ReverseRoute findReverseRoute(byte[] destAddr) {
-        return REVERSE_ROUTE_TABLE.get(destAddr);
+        return REVERSE_ROUTE_TABLE.get(Arrays.hashCode(destAddr));
     }
 
     public static ForwardRoute validRouteExists(RREQ rreq) {
-        var route = ROUTE_TABLE.get(rreq.getDestAddr());
+        var route = ROUTE_TABLE.get(Arrays.hashCode(rreq.getDestAddr()));
         if (route == null)
             return null;
         return (route.isValid()
