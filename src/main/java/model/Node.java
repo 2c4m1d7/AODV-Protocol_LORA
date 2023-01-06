@@ -77,7 +77,7 @@ public class Node {
     public static boolean updateRouteEntry(ForwardRoute control) {
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
-            if (entry.getSeq() == -1 // todo ? the sequence number is unknown
+            if (!entry.isValidSeqNum() // todo ? the sequence number is unknown
                     || control.getSeq() > entry.getSeq()
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
                 ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);

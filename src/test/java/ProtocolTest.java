@@ -1,17 +1,17 @@
-import com.fazecast.jSerialComm.SerialPort;
-import connector.Main;
-import connector.TestConnection;
 import model.ForwardRoute;
 import model.Node;
 import model.ReverseRoute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import packets.RREP;
 import packets.RREQ;
+import utils.Converter;
+import utils.Timer;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 
-import static java.lang.System.out;
 import static java.lang.Thread.sleep;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,25 +42,64 @@ public class ProtocolTest {
     }
 
     @Test
-    void test(){
+    void testRREQ() {
         MessageHandler.handle("AT,000A,OK".getBytes());
         assertArrayEquals(new byte[]{0, 0, 0, 10}, Node.getADDR());
 
-        var expectedRREQ = new RREQ((byte) 1, (byte) 1, (byte) 2, new byte[]{0,0,0,1}, (byte) 0, new byte[]{0,0,0,3}, (byte) 8).getBytes();
+        var expectedRREQ = new RREQ((byte) 1, (byte) 1, (byte) 2, new byte[]{0, 0, 0, 1}, (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 8).getBytes();
         var rreq = MessageHandler.handle("LR,000D,12,BBACAAEAAAMI".getBytes()); //1,1,0,2; 0,0,0,1,0; 0,0,0,3,8
         assertArrayEquals(expectedRREQ, rreq);
 
-        var expectedReverseRoute = new ReverseRoute(new byte[]{0,0,0,3}, new byte[]{0,0,0,1}, (byte) 1, (byte) -1,new byte[]{0,0,0,13});
+        var expectedReverseRoute = new ReverseRoute(new byte[]{0, 0, 0, 3}, new byte[]{0, 0, 0, 1}, (byte) 1, (byte) -1, new byte[]{0, 0, 0, 13}, true);
         var reverseRoute = Node.findReverseRoute(expectedReverseRoute.getDestAddr());
         assertEquals(expectedReverseRoute, reverseRoute);
 
-        var expectedForwardRoute = new ForwardRoute(new byte[]{0,0,0,1}, new byte[]{0,0,0,3}, (byte) 0x40, (byte) -1, null);
+        var expectedForwardRoute = new ForwardRoute(new byte[]{0, 0, 0, 1}, new byte[]{0, 0, 0, 3}, (byte) 0x40, (byte) -1, null, false);
         var forwardRoute = Node.findRoute(expectedForwardRoute.getDestAddr());
         assertEquals(expectedForwardRoute, forwardRoute);
 
-        var expectedForwardRouteReverse = new ForwardRoute(new byte[]{0,0,0,3}, new byte[]{0,0,0,1}, (byte) 1, (byte) -1, new byte[]{0,0,0,13});
+        var expectedForwardRouteReverse = new ForwardRoute(new byte[]{0, 0, 0, 3}, new byte[]{0, 0, 0, 1}, (byte) 1, (byte) -1, new byte[]{0, 0, 0, 13}, false);
         var forwardRouteReverse = Node.findRoute(expectedForwardRouteReverse.getDestAddr());
         assertEquals(expectedForwardRouteReverse, forwardRouteReverse);
+    }
+
+    @Test
+    void testRREPNoReverseRoute() {
+        MessageHandler.handle("AT,000A,OK".getBytes());
+        assertArrayEquals(new byte[]{0, 0, 0, 10}, Node.getADDR());
+
+        var expectedRREP = new RREP((byte) (Timer.getCurrentTimestamp() % 0x3ffff), new byte[]{0, 0, 0, 1}, (byte) 2, new byte[]{0, 0, 0, 3}, (byte) 0);
+        var rrep = MessageHandler.handle("LR,000D,12,CABmAAECAAMA".getBytes()); // 2; 102; 0,0,0,1; 2; 0,0,0,3; 0
+        assertArrayEquals(null, rrep);
+
+        var expectedForwardRoute = new ForwardRoute(expectedRREP.getDestAddr(), expectedRREP.getOriAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), null, true);
+        var forwardRoute = Node.findRoute(expectedForwardRoute.getDestAddr());
+        assertEquals(expectedForwardRoute, forwardRoute);
+
+        var expectedForwardRouteReverse = new ForwardRoute(expectedRREP.getOriAddr(), expectedRREP.getDestAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), new byte[]{0, 0, 0, 13}, true);
+        var forwardRouteReverse = Node.findRoute(expectedForwardRouteReverse.getDestAddr());
+        assertEquals(expectedForwardRouteReverse, forwardRouteReverse);
+    }
+
+    //todo test return correct rrep
+
+    @Test
+    void testReturnCorrectRREP() {
+        var rreq = "BBACAAEAAAMI";
+        Node.setADDR(new byte[]{0, 0, 0, 1});
+
+        var rrep = new RREP(Objects.requireNonNull(MessageHandler.handle(("LR,0003,12," + rreq).getBytes())));
+        var expectedRREP = new RREP(6000, new byte[]{0, 0, 0, 3}, (byte) 0, Node.getADDR(), (byte) 0);
+        System.out.println("expected = "+Arrays.toString(expectedRREP.getBytes()));
+        System.out.println("actual = " + Arrays.toString(rrep.getBytes()));
+//        assertArrayEquals(expectedRREP.getBytes(), rrep.getBytes());
+        assertTrue(Arrays.equals(expectedRREP.getDestAddr(), rrep.getDestAddr()));
+        assertTrue(Arrays.equals(expectedRREP.getOriAddr(), rrep.getOriAddr()));
+        assertEquals(expectedRREP.getHopCount(), rrep.getHopCount());
+        assertEquals(expectedRREP.getLifetime(), rrep.getLifetime());
+
+        System.out.println(Base64.getEncoder().encodeToString(Converter.prepareForEncoding(rrep.getBytes())));
+        System.out.println(new String(rrep.getBytes()));
     }
 
 }

@@ -9,7 +9,7 @@ import static packets.RREQ.Flags.U;
 public class RREQ extends Packet {
 
     public enum Flags {
-        U((byte) 0x1);
+        U((byte) 0x20);
 
         private byte value;
 

@@ -7,6 +7,7 @@ import static java.lang.System.*;
 import static java.lang.System.out;
 import static java.lang.Thread.sleep;
 
+// DAVID NODE BgAAABMAABEA  RREQ
 public class Main {
     static Scanner scanner = new Scanner(in);
 
@@ -25,10 +26,22 @@ public class Main {
             if (connection == null) {
                 connection = setConnection();
             } else {
-                var m = scanner.nextLine();
-                if (m.equals("exit")) {
-                    break;
-                }
+
+                    out.println("1. send packet");
+                    var m = scanner.nextLine();
+                    if (m.equals("exit")) {
+                        break;
+                    } else {
+                        try {
+                            if (Integer.parseInt(m) == 1) {
+                                out.print("enter encoded packet in Base64: ");
+                                var packet = scanner.next();
+                                connection.listener().setSendThread(connection.sendPacket(packet.getBytes())); // get listener -> override mythread
+                            }
+                        } catch (NumberFormatException e) {
+                            err.println(e);
+                        }
+                    }
                 try {
                     if (m.length() > 0 && !connection.send(m)) {
                         connection = null;
@@ -44,7 +57,7 @@ public class Main {
 
     private static Connection setConnection() {
         Connection connection;
-        var port = SerialPort.getCommPort("/dev/ttys002");
+//        var port = SerialPort.getCommPort("/dev/ttys002");
 
         var ports = Connection.getPorts();
         for (int i = 0; i < ports.length; i++) {
@@ -55,8 +68,8 @@ public class Main {
         if (num < 0 || num >= ports.length) {
             return null;
         }
-        connection = new Connection(ports[num]);
-        connection = new Connection(port);
+        connection = new Connection(ports[num], null);
+//        connection = new Connection(port);
         if (connection.connect()) {
             out.println("Opened port: " + connection.port().getDescriptivePortName());
             return connection;

@@ -7,8 +7,8 @@ public class ReverseRoute extends Route {
 
     private byte[] prevHop;
 
-    public ReverseRoute(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, byte[] prevHop) {
-        super(destAddr, sourceAddr, hopCount, seq);
+    public ReverseRoute(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, byte[] prevHop, boolean validSeqNum) {
+        super(destAddr, sourceAddr, hopCount, seq, validSeqNum);
         this.prevHop = prevHop;
     }
 

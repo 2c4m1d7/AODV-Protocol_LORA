@@ -6,8 +6,9 @@ public class ForwardRoute extends Route{
 
     private byte[] nextHop;
 
-    public ForwardRoute(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, byte[] nextHop) {
-        super(destAddr, sourceAddr, hopCount, seq);
+
+    public ForwardRoute(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, byte[] nextHop, boolean validSeqNum) {
+        super(destAddr, sourceAddr, hopCount, seq, validSeqNum);
         this.nextHop = nextHop;
     }
 
@@ -26,6 +27,7 @@ public class ForwardRoute extends Route{
         ForwardRoute that = (ForwardRoute) o;
         return Arrays.equals(nextHop, that.nextHop);
     }
+
 
     @Override
     public int hashCode() {

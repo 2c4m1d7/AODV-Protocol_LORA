@@ -14,11 +14,14 @@ public abstract class Route {
     protected long lifetime;
     protected boolean active;
 
-    public Route(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq) {
+   protected boolean validSeqNum;
+
+    public Route(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, boolean validSeqNum) {
         this.destAddr = destAddr;
         this.sourceAddr = sourceAddr;
         this.hopCount = hopCount;
         this.seq = seq;
+        this.validSeqNum=validSeqNum;
     }
 
 
@@ -38,6 +41,14 @@ public abstract class Route {
     public Route setSourceAddr(byte[] sourceAddr) {
         this.sourceAddr = sourceAddr;
         return this;
+    }
+
+    public boolean isValidSeqNum() {
+        return validSeqNum;
+    }
+
+    public void setValidSeqNum(boolean validSeqNum) {
+        this.validSeqNum = validSeqNum;
     }
 
     public byte getHopCount() {

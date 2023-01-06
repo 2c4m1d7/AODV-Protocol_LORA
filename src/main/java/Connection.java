@@ -10,21 +10,22 @@ import utils.Parser;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 //AT+DEST=FFFF
 //AT+CFG=433920000,5,6,10,4,1,0,0,0,0,3000,8,4
 //AT+RX
 //AT+SEND=14
 //BBACAAEAAAMI
-public record Connection(SerialPort port) {
+public record Connection(SerialPort port, Listener listener) {
 
     private static boolean connected = false;
 
     private static OutputStream outputStream;
+
+    public Connection {
+        listener = new Listener(this);
+    }
 
     public SerialPort port() {
         return port;
@@ -34,12 +35,16 @@ public record Connection(SerialPort port) {
         return SerialPort.getCommPorts();
     }
 
+    @Override
+    public Listener listener() {
+        return listener;
+    }
+
     public boolean connect() {
         if (!port.isOpen() && !port.openPort(2000)) {
             return false;
         }
         outputStream = port.getOutputStream();
-        var listener = new Listener(this);
         port.addDataListener(listener);
         try {
             synchronized (this) {
@@ -81,7 +86,7 @@ public record Connection(SerialPort port) {
         port.closePort();
     }
 
-    private class Listener implements SerialPortDataListener {
+    public class Listener implements SerialPortDataListener {
 
         private final Set<byte[]> answers = new HashSet<>();
 
@@ -125,24 +130,25 @@ public record Connection(SerialPort port) {
                 }
             }
 
-            if (!connected){
-                return;
-            }
-
             //test
             System.out.println(new String(buffer));
             printInfo();
             System.out.println("-------------------------");
 
             var answer = MessageHandler.handle(buffer);
+
+            if (!connected) {
+                return;
+            }
             if (answer != null) {
+                System.out.println("Antwort = " + Base64.getEncoder().encodeToString(Converter.prepareForEncoding(answer)));
                 answers.add(answer);
             }
 
-            if (answers.size() != 0 && !myThread.inProcess()){
-                var o = (byte[]) answers.toArray()[0];
-                answers.remove(o);
-                myThread = sendPacket(o);
+            if (answers.size() != 0 && !myThread.inProcess()) {
+                var packet = (byte[]) answers.toArray()[0];
+                answers.remove(packet);
+                myThread = sendPacket(packet);
             }
 //            if (answer == null && answers.size() != 0 && !myThread.inProcess()) {
 //                var o = (byte[]) answers.toArray()[0];
@@ -172,6 +178,10 @@ public record Connection(SerialPort port) {
             System.out.println("Thread in process : " + myThread.inProcess());
             System.out.println("My address = " + Arrays.toString(Node.getADDR()));
             System.out.println(Node.getInfo());
+        }
+
+        public void setSendThread(MyThread sendThread) {
+            myThread = sendThread;
         }
     }
 
@@ -214,7 +224,7 @@ public record Connection(SerialPort port) {
                     }
                 }
             } catch (IOException | InterruptedException e) {
-                System.out.println(e);
+                System.err.println(e);
             }
 
         }
