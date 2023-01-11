@@ -1,9 +1,49 @@
 package utils;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.util.function.Function;
 
 
 public class Converter {
+
+    public static byte[] userDataPacketEncode(byte[] udPacket) {
+
+        var a = MyArrayUtils.getRangeArray(udPacket, 0, 4);
+        var fB = (byte) ((a[1] & 0x0c) >> 2);
+        var sB = (byte) (((a[1] & 0x03) << 6) | ((a[2] & 0x0f) << 2) | ((a[3] & 0x0c) >> 2));
+        var tB = (byte) (((a[3] & 0x03) << 6) | ((a[4] & 0x0f) << 2));
+        var b = MyArrayUtils.getRangeArray(udPacket, 5, udPacket.length - 1);
+        var res = new byte[b.length];
+        for (int i = 0; i < res.length; i++) {
+            if (i == 0) {
+                tB = (byte) (tB | ((b[i] & 0xc0) >> 6));
+            } else if (i == res.length - 1) {
+                res[i] = (byte) (b[i] << 2);
+                continue;
+            }
+            res[i] = (byte) ((b[i] << 2) | ((b[i + 1] & 0xc0) >> 6));
+
+        }
+        return ArrayUtils.addAll(new byte[]{fB, sB, tB}, res);
+    }
+
+    public static byte[] userDataPacketDecode(byte[] udPacket) {
+        var a = MyArrayUtils.getRangeArray(udPacket, 0, 2);
+        var type = (byte) (a[0] >> 2);
+        var addr0 = (byte) (((a[0] & 0x03) << 2) | ((a[1] & 0xc0) >> 6));
+        var addr1 = (byte) ((a[1] & 0x3C) >> 2);
+        var addr2 = (byte) (((a[1] & 0x03) << 2) | ((a[2] & 0xc0) >> 6));
+        var addr3 = (byte) ((a[2] & 0x3C) >> 2);
+        var b = MyArrayUtils.getRangeArray(udPacket, 3, udPacket.length - 1);
+        b = ArrayUtils.addAll(new byte[]{(byte) (a[2] & 0x3)}, b);
+        var res = new byte[b.length - 1];
+        for (int i = 0; i < res.length; i++) {
+            res[i] = (byte) (((b[i] & 0x03) << 6) | ((b[i + 1] & 0xfc) >> 2));
+        }
+        return ArrayUtils.addAll(new byte[]{type, addr0, addr1, addr2, addr3}, res);
+    }
+
     public static byte[] prepareForEncoding(byte[] bs) {
         byte[] b;
         if (((bs.length / 2 % 2 != 0) || (bs.length % 2 == 1))) {

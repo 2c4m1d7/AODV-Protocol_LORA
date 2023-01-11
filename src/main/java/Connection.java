@@ -150,23 +150,6 @@ public record Connection(SerialPort port, Listener listener) {
                 answers.remove(packet);
                 myThread = sendPacket(packet);
             }
-//            if (answer == null && answers.size() != 0 && !myThread.inProcess()) {
-//                var o = (byte[]) answers.toArray()[0];
-//                answers.remove(o);
-//                myThread = sendPacket(o);
-//            } else if (myThread.inProcess() && answer != null) {
-//                answers.add(answer);
-//            } else {
-//                if (answers.size() != 0) {
-//                    var o = (byte[]) answers.toArray()[0];
-//                    answers.remove(o);
-//                    myThread = sendPacket(o);
-//                    if (answer != null)
-//                        answers.add(answer);
-//                } else if (answer != null) {
-//                    myThread = sendPacket(answer);
-//                }
-//            }
             printInfo();
             System.out.println("***************************");
 
