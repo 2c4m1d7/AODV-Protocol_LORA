@@ -60,9 +60,9 @@ public class RREP extends Packet {
     public byte[] getBytes() {
         var converted = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0],destAddr[1],destAddr[2], destAddr[3], destSeqNum,
                 oriAddr[0],oriAddr[1],oriAddr[2], oriAddr[3], hopCount});
-        return new byte[]{type, (byte) ((lifetime >> 12) & 0x3f), (byte) ((lifetime >> 6) & 0x3f), (byte) (lifetime & 0x3f),
+        return Converter.prepareForEncoding(new byte[]{type, (byte) ((lifetime >> 12) & 0x3f), (byte) ((lifetime >> 6) & 0x3f), (byte) (lifetime & 0x3f),
                 converted[0],converted[1],converted[2], converted[3],
-                converted[4],converted[5],converted[6], converted[7]};
+                converted[4],converted[5],converted[6], converted[7]});
     }
 
     @Override

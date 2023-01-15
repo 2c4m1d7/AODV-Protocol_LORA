@@ -35,6 +35,11 @@ public class ForwardRoute extends Route{
     }
 
     @Override
+    public boolean isValid() {
+        return nextHop != null;
+    }
+
+    @Override
     public String toString() {
         return "ForwardRoute{" +
                 "nextHop=" + Arrays.toString(nextHop) +

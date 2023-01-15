@@ -35,6 +35,11 @@ public class ReverseRoute extends Route {
     }
 
     @Override
+    public boolean isValid() {
+        return prevHop != null;
+    }
+
+    @Override
     public String toString() {
         return "ReverseRoute{" +
                 "prevHop=" + Arrays.toString(prevHop) +

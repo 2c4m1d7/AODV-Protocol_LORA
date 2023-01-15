@@ -41,7 +41,7 @@ public class RREQ extends Packet {
         this.oriSeqNum = oriSeqNum;
     }
 
-    public RREQ(byte... paket) {
+    public RREQ(byte[] paket) {
         super((byte) 1);
         var addrPlusSeq = Converter.convertAddrPlusSeqNum(new byte[]{paket[4], paket[5], paket[6], paket[7], paket[8], paket[9], paket[10], paket[11]});
 
@@ -92,8 +92,8 @@ public class RREQ extends Packet {
     public byte[] getBytes() {
         var convertedAddrSeqNum = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0], destAddr[1], destAddr[2], destAddr[3], destSeqNum,
                 oriAddr[0], oriAddr[1], oriAddr[2], oriAddr[3], oriSeqNum});
-        return new byte[]{type, flag, hopCount, reqId, convertedAddrSeqNum[0], convertedAddrSeqNum[1], convertedAddrSeqNum[2], convertedAddrSeqNum[3],
-                convertedAddrSeqNum[4], convertedAddrSeqNum[5], convertedAddrSeqNum[6], convertedAddrSeqNum[7]};
+        return Converter.prepareForEncoding(new byte[]{type, flag, hopCount, reqId, convertedAddrSeqNum[0], convertedAddrSeqNum[1], convertedAddrSeqNum[2], convertedAddrSeqNum[3],
+                convertedAddrSeqNum[4], convertedAddrSeqNum[5], convertedAddrSeqNum[6], convertedAddrSeqNum[7]});
     }
 
     public void incrementHopCount() {

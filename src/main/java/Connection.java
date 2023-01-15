@@ -2,10 +2,9 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import model.Node;
-import org.apache.commons.lang3.ArrayUtils;
+import model.SendPacket;
 import org.apache.commons.lang3.StringUtils;
 import utils.Converter;
-import utils.MyArrayUtils;
 import utils.Parser;
 
 import java.io.IOException;
@@ -40,6 +39,9 @@ public record Connection(SerialPort port, Listener listener) {
         return listener;
     }
 
+    public boolean sendThreadInProcess(){
+       return listener.myThread.inProcess();
+    }
     public boolean connect() {
         if (!port.isOpen() && !port.openPort(2000)) {
             return false;
@@ -51,17 +53,15 @@ public record Connection(SerialPort port, Listener listener) {
                 send("AT+ADDR?");
                 this.wait();
 
-                send("AT+DEST=FFFF");
+                send("AT+CFG=433920000,5,6,10,4,1,0,0,0,0,3000,8,4");
                 this.wait();
 
-                send("AT+CFG=433920000,5,6,10,4,1,0,0,0,0,3000,8,4");
+                send("AT+DEST=FFFF");
                 this.wait();
 
                 send("AT+RX");
                 this.wait();
             }
-        } catch (IOException e) {
-            System.err.println(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -69,16 +69,20 @@ public record Connection(SerialPort port, Listener listener) {
         return true;
     }
 
-    public boolean send(String m) throws IOException {
+    public boolean send(String m)  {
         if (outputStream == null) {
             return false;
         }
-        outputStream.write((m + "\r\n").getBytes());
+        try {
+            outputStream.write((m + "\r\n").getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 //        outputStream.flush();
         return true;
     }
 
-    public MyThread sendPacket(byte[] answer) {
+    public MyThread sendPacket(SendPacket answer) {
         return new MyThread(answer);
     }
 
@@ -88,15 +92,19 @@ public record Connection(SerialPort port, Listener listener) {
 
     public class Listener implements SerialPortDataListener {
 
-        private final Set<byte[]> answers = new HashSet<>();
+        private final Set<SendPacket> sendPackets = new HashSet<>();
 
         private MyThread myThread = new MyThread(null);
-        private final Set<String> loraResponses = Set.of("AT,OK", "AT,SENDED");
+        private final Set<String> loraResponses = Set.of("AT,SENDED");
         private String tmp = "";
         private final Connection connection;
 
         public Listener(Connection connection) {
             this.connection = connection;
+        }
+
+        public boolean addSendPacket(SendPacket sendPacket) {
+            return sendPackets.add(sendPacket);
         }
 
         @Override
@@ -135,19 +143,19 @@ public record Connection(SerialPort port, Listener listener) {
             printInfo();
             System.out.println("-------------------------");
 
-            var answer = MessageHandler.handle(buffer);
+            var sendPacket = MessageHandler.handle(buffer);
 
             if (!connected) {
                 return;
             }
-            if (answer != null) {
-                System.out.println("Antwort = " + Base64.getEncoder().encodeToString(Converter.prepareForEncoding(answer)));
-                answers.add(answer);
+            if (sendPacket != null) {
+                System.out.println("Antwort = " + Base64.getEncoder().encodeToString(Converter.prepareForEncoding(sendPacket.getPacket())));
+                sendPackets.add(sendPacket);
             }
 
-            if (answers.size() != 0 && !myThread.inProcess()) {
-                var packet = (byte[]) answers.toArray()[0];
-                answers.remove(packet);
+            if (sendPackets.size() != 0 && !myThread.inProcess()) {
+                var packet = (SendPacket) sendPackets.toArray()[0];
+                sendPackets.remove(packet);
                 myThread = sendPacket(packet);
             }
             printInfo();
@@ -157,7 +165,7 @@ public record Connection(SerialPort port, Listener listener) {
         }
 
         private void printInfo() {
-            System.out.println(answers);
+            System.out.println(sendPackets);
             System.out.println("Thread in process : " + myThread.inProcess());
             System.out.println("My address = " + Arrays.toString(Node.getADDR()));
             System.out.println(Node.getInfo());
@@ -171,10 +179,10 @@ public record Connection(SerialPort port, Listener listener) {
 
     private class MyThread implements Runnable {
         private final Thread t;
-        byte[] answer;
+        SendPacket sendPacket;
 
-        public MyThread(byte[] answer) {
-            this.answer = answer;
+        public MyThread(SendPacket sendPacket) {
+            this.sendPacket = sendPacket;
             t = new Thread(this);
             t.start();
         }
@@ -187,26 +195,26 @@ public record Connection(SerialPort port, Listener listener) {
         public void run() {
 
             try {
-                if (answer != null) {
+                if (sendPacket != null) {
                     synchronized (this) {
-                        if (answer.length > 12) {
-                            byte[] addr = MyArrayUtils.getRangeArray(answer, answer.length - 5, answer.length - 1);
+                        byte[] dest = sendPacket.getNextHop();
 
-                            send("AT+DEST=" + Parser.parseBytesToAddr(addr));
+                        send("AT+DEST=" + Parser.parseBytesToAddr(dest));
+                        this.wait();
+
+                        var packet = sendPacket.getPacket();
+                        packet = Base64.getEncoder().encode(packet);
+
+                        send("AT+SEND=" + packet.length);
+                        this.wait();
+                        send(new String(packet));
+                        if (!Arrays.equals(dest, Parser.parseAddrToBytes("FFFF"))) {
                             this.wait();
-                            answer = ArrayUtils.removeAll(answer, answer.length - 1, answer.length - 2, answer.length - 3, answer.length - 4);
+                            send("AT+DEST=FFFF");
                         }
-                        answer = Converter.prepareForEncoding(answer);
-                        answer = Base64.getEncoder().encode(answer);
-
-                        send("AT+SEND=" + answer.length);
-                        this.wait();
-                        send(new String(answer));
-                        this.wait();
-                        send("AT+DEST=FFFF");
                     }
                 }
-            } catch (IOException | InterruptedException e) {
+            } catch ( InterruptedException e) {
                 System.err.println(e);
             }
 

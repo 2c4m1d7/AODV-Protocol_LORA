@@ -21,6 +21,7 @@ public class ProtocolTest {
 
     @BeforeEach
     void setup() {
+        Node.clearForTest();
 //        protocol = new Connection(SerialPort.getCommPort("/dev/ttys007"));
 //        if (protocol.connect()) {
 //            out.println("Opened port: " + protocol.port().getDescriptivePortName());
@@ -47,7 +48,8 @@ public class ProtocolTest {
         assertArrayEquals(new byte[]{0, 0, 0, 10}, Node.getADDR());
 
         var expectedRREQ = new RREQ((byte) 1, (byte) 1, (byte) 2, new byte[]{0, 0, 0, 1}, (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 8).getBytes();
-        var rreq = MessageHandler.handle("LR,000D,12,BBACAAEAAAMI".getBytes()); //1,1,0,2; 0,0,0,1,0; 0,0,0,3,8
+        var sendPacket = Objects.requireNonNull(MessageHandler.handle("LR,000D,12,BBACAAEAAAMI".getBytes())); //1,1,0,2; 0,0,0,1,0; 0,0,0,3,8
+        var rreq = new RREQ(sendPacket.getPacket()).getBytes();
         assertArrayEquals(expectedRREQ, rreq);
 
         var expectedReverseRoute = new ReverseRoute(new byte[]{0, 0, 0, 3}, new byte[]{0, 0, 0, 1}, (byte) 1, (byte) -1, new byte[]{0, 0, 0, 13}, true);
@@ -69,8 +71,8 @@ public class ProtocolTest {
         assertArrayEquals(new byte[]{0, 0, 0, 10}, Node.getADDR());
 
         var expectedRREP = new RREP((byte) (Timer.getCurrentTimestamp() % 0x3ffff), new byte[]{0, 0, 0, 1}, (byte) 2, new byte[]{0, 0, 0, 3}, (byte) 0);
-        var rrep = MessageHandler.handle("LR,000D,12,CABmAAECAAMA".getBytes()); // 2; 102; 0,0,0,1; 2; 0,0,0,3; 0
-        assertArrayEquals(null, rrep);
+        var sendPacket = MessageHandler.handle("LR,000D,12,CABmAAECAAMA".getBytes()); // 2; 102; 0,0,0,1; 2; 0,0,0,3; 0
+        assertNull(sendPacket);
 
         var expectedForwardRoute = new ForwardRoute(expectedRREP.getDestAddr(), expectedRREP.getOriAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), null, true);
         var forwardRoute = Node.findRoute(expectedForwardRoute.getDestAddr());
@@ -87,19 +89,15 @@ public class ProtocolTest {
     void testReturnCorrectRREP() {
         var rreq = "BBACAAEAAAMI";
         Node.setADDR(new byte[]{0, 0, 0, 1});
-
-        var rrep = new RREP(Objects.requireNonNull(MessageHandler.handle(("LR,0003,12," + rreq).getBytes())));
-        var expectedRREP = new RREP(6000, new byte[]{0, 0, 0, 3}, (byte) 0, Node.getADDR(), (byte) 0);
-        System.out.println("expected = "+Arrays.toString(expectedRREP.getBytes()));
-        System.out.println("actual = " + Arrays.toString(rrep.getBytes()));
+        var sendPacket = Objects.requireNonNull(MessageHandler.handle(("LR,0003,12," + rreq).getBytes()));
+        var rrep = new RREP(sendPacket.getPacket());
+        var expectedRREP = new RREP(6000, Node.getADDR(), (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 0);
 //        assertArrayEquals(expectedRREP.getBytes(), rrep.getBytes());
-        assertTrue(Arrays.equals(expectedRREP.getDestAddr(), rrep.getDestAddr()));
-        assertTrue(Arrays.equals(expectedRREP.getOriAddr(), rrep.getOriAddr()));
+        assertArrayEquals(expectedRREP.getDestAddr(), rrep.getDestAddr());
+        assertArrayEquals(expectedRREP.getOriAddr(), rrep.getOriAddr());
         assertEquals(expectedRREP.getHopCount(), rrep.getHopCount());
         assertEquals(expectedRREP.getLifetime(), rrep.getLifetime());
 
-        System.out.println(Base64.getEncoder().encodeToString(Converter.prepareForEncoding(rrep.getBytes())));
-        System.out.println(new String(rrep.getBytes()));
     }
 
 }

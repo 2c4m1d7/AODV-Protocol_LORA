@@ -14,14 +14,14 @@ public abstract class Route {
     protected long lifetime;
     protected boolean active;
 
-   protected boolean validSeqNum;
+    protected boolean validSeqNum;
 
     public Route(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, boolean validSeqNum) {
         this.destAddr = destAddr;
         this.sourceAddr = sourceAddr;
         this.hopCount = hopCount;
         this.seq = seq;
-        this.validSeqNum=validSeqNum;
+        this.validSeqNum = validSeqNum;
     }
 
 
@@ -78,9 +78,7 @@ public abstract class Route {
         return this;
     }
 
-    public boolean isValid() {
-        return seq<Node.OVER_MAX;
-    }
+    public abstract boolean isValid();
 
 
     public boolean isActive() {
@@ -93,10 +91,10 @@ public abstract class Route {
     }
 
     public void updateLifetimeRREQ() {
-            var currentTime = Timer.getCurrentTimestamp();
-            long minimalLifetime = (currentTime + 2 *  Node.NET_TRAVERSAL_TIME - 2 * hopCount * Node.NODE_TRAVERSAL_TIME);
-            long existingLifeTime = lifetime;
-            lifetime = max(existingLifeTime, minimalLifetime);
+        var currentTime = Timer.getCurrentTimestamp();
+        long minimalLifetime = (currentTime + 2 * Node.NET_TRAVERSAL_TIME - 2 * hopCount * Node.NODE_TRAVERSAL_TIME);
+        long existingLifeTime = lifetime;
+        lifetime = max(existingLifeTime, minimalLifetime);
     }
 
     public void updateLifetimeRREP(long packetLifetime) {

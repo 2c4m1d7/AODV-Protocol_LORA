@@ -1,6 +1,5 @@
 package model;
 
-import packets.RREP;
 import packets.RREQ;
 
 import java.util.*;
@@ -14,12 +13,11 @@ public class Node {
     public static final int NET_TRAVERSAL_TIME = 2 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
     public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
 
-    public static final byte OVER_MAX = 0x40;
 
     private Node() {
     }
 
-    public static class ProcessedRREQInfo  {
+    public static class ProcessedRREQInfo {
         private final byte requestID;
         private final byte[] oriAddr;
 
@@ -56,6 +54,7 @@ public class Node {
     private static final Map<Integer, ForwardRoute> ROUTE_TABLE = new HashMap<>();
     private static final Map<Integer, ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
     private static byte[] ADDR;
+    private static byte REQUEST_ID = 0;
     private static byte SEQ_NUM = 0;
 
     public static void setADDR(byte[] addr) {
@@ -67,7 +66,13 @@ public class Node {
     }
 
     public static byte getSeqNum() {
-        return SEQ_NUM;
+        return SEQ_NUM++;
+    }
+
+    public static byte useREQid() {
+        var tmp = REQUEST_ID;
+        REQUEST_ID++;
+        return tmp;
     }
 
     public static void incrementSeqNum() {
@@ -77,7 +82,7 @@ public class Node {
     public static boolean updateRouteEntry(ForwardRoute control) {
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
-            if (!entry.isValidSeqNum() // todo ? the sequence number is unknown
+            if (!entry.isValidSeqNum()
                     || control.getSeq() > entry.getSeq()
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
                 ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
@@ -90,7 +95,7 @@ public class Node {
     public static boolean updateReverseRouteEntry(ReverseRoute control) {
         var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
-            if (entry.getSeq() == -1 // todo ? the sequence number is unknown
+            if (!entry.isValidSeqNum()
                     || control.getSeq() > entry.getSeq()
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
                 REVERSE_ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
@@ -141,6 +146,10 @@ public class Node {
                 && (route.getSeq() >= rreq.getDestSeqNum())) ? route : null;
     }
 
+    public static List<byte[]> getValidDestAddrs() {
+        return ROUTE_TABLE.values().stream().filter(Route::isValid).map(Route::getDestAddr).toList();
+    }
+
     /**
      * For Testing
      */
@@ -149,5 +158,14 @@ public class Node {
                 "\nROUTE_TABLE: " + ROUTE_TABLE +
                 "\nREVERSE_ROUTE_TABLE: " + REVERSE_ROUTE_TABLE +
                 "\nSEQ_NUM: " + SEQ_NUM + "}";
+    }
+
+    public static void clearForTest() {
+        processedRREQ.clear();
+        ROUTE_TABLE.clear();
+        REVERSE_ROUTE_TABLE.clear();
+        ADDR = null;
+        SEQ_NUM = 0;
+        REQUEST_ID = 0;
     }
 }
