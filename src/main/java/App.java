@@ -34,7 +34,12 @@ public class App {
             }
         } catch (IllegalArgumentException e) {
             System.err.println(e);
-            addr = Parser.parseAddrToBytes(input);
+            try {
+                addr = Parser.parseAddrToBytes(input);
+            }catch (IllegalArgumentException e1){
+                System.err.println(e1);
+                return;
+            }
         }
 
         userData.setDestAddr(addr);
@@ -52,6 +57,8 @@ public class App {
                 sendPacket(sendPacket);
                 if (sendPacket == SendPacket.RREQ) {
                     Thread.sleep(((long) i * i * Node.NET_TRAVERSAL_TIME));
+                } else if (sendPacket == SendPacket.UD) {
+                    break;
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
