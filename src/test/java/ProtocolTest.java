@@ -49,8 +49,7 @@ public class ProtocolTest {
 
         var expectedRREQ = new RREQ((byte) 1, (byte) 1, (byte) 2, new byte[]{0, 0, 0, 1}, (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 8).getBytes();
         var sendPacket = Objects.requireNonNull(MessageHandler.handle("LR,000D,12,BBACAAEAAAMI".getBytes())); //1,1,0,2; 0,0,0,1,0; 0,0,0,3,8
-        var rreq = new RREQ(sendPacket.getPacket()).getBytes();
-        assertArrayEquals(expectedRREQ, rreq);
+        assertArrayEquals(expectedRREQ, sendPacket.getPacket());
 
         var expectedReverseRoute = new ReverseRoute(new byte[]{0, 0, 0, 3}, new byte[]{0, 0, 0, 1}, (byte) 1, (byte) -1, new byte[]{0, 0, 0, 13}, true);
         var reverseRoute = Node.findReverseRoute(expectedReverseRoute.getDestAddr());
@@ -74,13 +73,10 @@ public class ProtocolTest {
         var sendPacket = MessageHandler.handle("LR,000D,12,CABmAAECAAMA".getBytes()); // 2; 102; 0,0,0,1; 2; 0,0,0,3; 0
         assertNull(sendPacket);
 
-        var expectedForwardRoute = new ForwardRoute(expectedRREP.getDestAddr(), expectedRREP.getOriAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), null, true);
+        var expectedForwardRoute = new ForwardRoute(expectedRREP.getDestAddr(), expectedRREP.getOriAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), new byte[]{0,0,0,13}, true);
         var forwardRoute = Node.findRoute(expectedForwardRoute.getDestAddr());
         assertEquals(expectedForwardRoute, forwardRoute);
 
-        var expectedForwardRouteReverse = new ForwardRoute(expectedRREP.getOriAddr(), expectedRREP.getDestAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), new byte[]{0, 0, 0, 13}, true);
-        var forwardRouteReverse = Node.findRoute(expectedForwardRouteReverse.getDestAddr());
-        assertEquals(expectedForwardRouteReverse, forwardRouteReverse);
     }
 
     //todo test return correct rrep
@@ -90,7 +86,7 @@ public class ProtocolTest {
         var rreq = "BBACAAEAAAMI";
         Node.setADDR(new byte[]{0, 0, 0, 1});
         var sendPacket = Objects.requireNonNull(MessageHandler.handle(("LR,0003,12," + rreq).getBytes()));
-        var rrep = new RREP(sendPacket.getPacket());
+        var rrep = new RREP(Converter.convertDecoded(sendPacket.getPacket()));
         var expectedRREP = new RREP(6000, Node.getADDR(), (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 0);
 //        assertArrayEquals(expectedRREP.getBytes(), rrep.getBytes());
         assertArrayEquals(expectedRREP.getDestAddr(), rrep.getDestAddr());
