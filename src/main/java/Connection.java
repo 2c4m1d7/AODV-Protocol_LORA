@@ -139,9 +139,9 @@ public record Connection(SerialPort port, Listener listener) {
             }
 
             //test
-            System.out.println(new String(buffer));
-            printInfo();
-            System.out.println("-------------------------");
+//            System.out.println(new String(buffer));
+//            printInfo();
+//            System.out.println("-------------------------");
 
             var sendPacket = MessageHandler.handle(buffer);
 
@@ -149,7 +149,7 @@ public record Connection(SerialPort port, Listener listener) {
                 return;
             }
             if (sendPacket != null) {
-                System.out.println("Antwort = " + Base64.getEncoder().encodeToString(Converter.prepareForEncoding(sendPacket.getPacket())));
+//                System.out.println("Antwort = " + Base64.getEncoder().encodeToString(sendPacket.getPacket()));
                 sendPackets.add(sendPacket);
             }
 
@@ -158,8 +158,8 @@ public record Connection(SerialPort port, Listener listener) {
                 sendPackets.remove(packet);
                 myThread = sendPacket(packet);
             }
-            printInfo();
-            System.out.println("***************************");
+//            printInfo();
+//            System.out.println("***************************");
 
 
         }

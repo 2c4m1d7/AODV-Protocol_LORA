@@ -20,34 +20,36 @@ public class MessageHandler {
     public static SendPacket handle(byte[] bytes) {
         var s = StringUtils.substringBefore(new String(bytes), "\r");
         var addr = Optional.ofNullable(StringUtils.substringBetween(s, ",", ",")).orElse("");
+        byte[] prevHop = new byte[4];
         try {
             if (s.contains("LR")) {
                 var arr = s.split(",");
-                var prevHop = Parser.parseAddrToBytes(arr[1]);
+                prevHop = Parser.parseAddrToBytes(arr[1]);
                 var data = arr[3];
                 var decoded = Base64.getDecoder().decode(data.getBytes());
                 var converted = Converter.convertDecoded(decoded);
                 return switch (converted[0]) {
                     case 1 -> handleRREQ(converted, prevHop);
                     case 2 -> handleRREP(converted, prevHop);
-                    case 0 -> handleUD(decoded);
+                    case 0 -> handleUD(decoded, prevHop);
                     default -> null;
                 };
             } else if (addr.length() == 4 && s.contains("AT")) {
                 Node.setADDR(Parser.parseAddrToBytes(addr));
             }
         } catch (IllegalArgumentException e) {
-            System.err.println(e);
+            System.err.println(s);
+            System.err.println("from " + Arrays.toString(prevHop) + " " + e);
         }
         return null;
     }
 
-    public static SendPacket handleUD(byte[] decoded) {
+    public static SendPacket handleUD(byte[] decoded, byte[] prevHop) {
         var converted = Converter.userDataPacketDecode(decoded);
         var destAddr = MyArrayUtils.getRangeArray(converted, 1, 4);
         var message = new String(MyArrayUtils.getRangeArray(converted, 5, converted.length - 1));
         if (Arrays.equals(destAddr, Node.getADDR())) {
-            System.out.println("Messge form " + Arrays.toString(destAddr) + ": \"" + message + "\"");
+            System.out.println("Message from " + Arrays.toString(prevHop) + ": \"" + message + "\"");
             return null;
         }
 
@@ -133,7 +135,7 @@ public class MessageHandler {
 
         rrep.incrementHopCount();
         var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0, prevHop, true);
-        byte hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 0, (byte) 0, null, false))).get().getHopCount();
+        byte hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 1, (byte) 0, null, false))).get().getHopCount();
 //        var hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr()).getHopCount()).orElse(Node.OVER_MAX);
         var forwardRoute = new ForwardRoute(rrep.getDestAddr(), rrep.getOriAddr(), hopCount, rrep.getDestSeqNum(), prevHop, true);
 

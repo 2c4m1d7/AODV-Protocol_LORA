@@ -15,6 +15,8 @@ public class App {
     }
 
     public void start() {
+        System.out.println("Addres " + Arrays.toString(Node.getADDR()));
+        System.out.println(Node.getInfo());
         var userData = new UserData();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Send data");
@@ -52,7 +54,7 @@ public class App {
         var i = 0;
         do {
             i++;
-            sendPacket = MessageHandler.handleUD(userData.getBytes());
+            sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
             try {
                 sendPacket(sendPacket);
                 if (sendPacket == SendPacket.RREQ) {
@@ -65,9 +67,11 @@ public class App {
             }
         } while (Node.RREQ_RETRIES != i);
         if (sendPacket != SendPacket.UD) {
-            sendPacket = MessageHandler.handleUD(userData.getBytes());
+            sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
             if (sendPacket == SendPacket.UD){
                 sendPacket(sendPacket);
+            }else {
+                System.err.println("Not sended");
             }
         }
 

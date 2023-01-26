@@ -15,19 +15,21 @@ public class Main {
 
     public static void main(String[] args) {
 //
-        var decoded = Base64.getDecoder().decode("AAAVIYWxsbw=");//AABBIYWxsbw=
-        out.println(Arrays.toString(decoded));
-        var converted = Converter.userDataPacketDecode(decoded);
-        out.println(new String(MyArrayUtils.getRangeArray(converted, 5, (converted.length - 1))));
-        out.println(Arrays.toString(converted));
+//        var decoded = Base64.getDecoder().decode("AAAVIYWxsbw=");//AABBIYWxsbw=
+//        out.println(Arrays.toString(decoded));
+//        var converted = Converter.userDataPacketDecode(decoded);
+//        out.println(new String(MyArrayUtils.getRangeArray(converted, 5, (converted.length - 1))));
+//        out.println(Arrays.toString(converted));
+//
+//        out.println(Base64.getEncoder().encodeToString(Converter.userDataPacketEncode(converted)));
+//
+//        var newUD = ArrayUtils.addAll(new byte[]{0,0,0,0,5}, "Hallo".getBytes());
+//
+//        var encided = Converter.userDataPacketEncode(newUD);
+//        out.println(Base64.getEncoder().encodeToString(encided));
 
-        out.println(Base64.getEncoder().encodeToString(Converter.userDataPacketEncode(converted)));
-
-        var newUD = ArrayUtils.addAll(new byte[]{0,0,0,0,5}, "Hallo".getBytes());
-
-        var encided = Converter.userDataPacketEncode(newUD);
-        out.println(Base64.getEncoder().encodeToString(encided));
-
+        out.println(Byte.compareUnsigned((byte) 127, (byte) 128) ==-1);
+        out.println((byte) 127 < (byte) 128);
 
         if (args.length > 0) {
             return;
@@ -61,7 +63,7 @@ public class Main {
 
     private static Connection setConnection() {
         Connection connection;
-        var port = SerialPort.getCommPort("/dev/ttys001");
+//        var port = SerialPort.getCommPort("/dev/ttys001");
 
         var ports = Connection.getPorts();
         for (int i = 0; i < ports.length; i++) {
@@ -72,8 +74,8 @@ public class Main {
         if (num < 0 || num >= ports.length) {
             return null;
         }
-//        connection = new Connection(ports[num], null);
-        connection = new Connection(port, null);
+        connection = new Connection(ports[num], null);
+//        connection = new Connection(port, null);
         if (connection.connect()) {
             out.println("Opened port: " + connection.port().getDescriptivePortName());
             return connection;

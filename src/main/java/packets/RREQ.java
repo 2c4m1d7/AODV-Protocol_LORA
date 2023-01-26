@@ -1,6 +1,8 @@
 package packets;
 
+import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
+import utils.MyArrayUtils;
 
 import java.util.Arrays;
 
@@ -43,14 +45,14 @@ public class RREQ extends Packet {
 
     public RREQ(byte[] paket) {
         super((byte) 1);
-        var addrPlusSeq = Converter.convertAddrPlusSeqNum(new byte[]{paket[4], paket[5], paket[6], paket[7], paket[8], paket[9], paket[10], paket[11]});
+        var addrPlusSeq = Converter.convertAddrPlusSeqNum(MyArrayUtils.getRangeArray(paket, 4, 11));
 
         this.flag = paket[1];
         this.hopCount = paket[2];
         this.reqId = paket[3];
-        this.destAddr = new byte[]{addrPlusSeq[0], addrPlusSeq[1], addrPlusSeq[2], addrPlusSeq[3]};
+        this.destAddr = MyArrayUtils.getRangeArray(addrPlusSeq, 0, 3);
         this.destSeqNum = addrPlusSeq[4];
-        this.oriAddr = new byte[]{addrPlusSeq[5], addrPlusSeq[6], addrPlusSeq[7], addrPlusSeq[8]};
+        this.oriAddr = MyArrayUtils.getRangeArray(addrPlusSeq, 5, 8);
         this.oriSeqNum = addrPlusSeq[9];
     }
 
@@ -92,8 +94,7 @@ public class RREQ extends Packet {
     public byte[] getBytes() {
         var convertedAddrSeqNum = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0], destAddr[1], destAddr[2], destAddr[3], destSeqNum,
                 oriAddr[0], oriAddr[1], oriAddr[2], oriAddr[3], oriSeqNum});
-        return Converter.prepareForEncoding(new byte[]{type, flag, hopCount, reqId, convertedAddrSeqNum[0], convertedAddrSeqNum[1], convertedAddrSeqNum[2], convertedAddrSeqNum[3],
-                convertedAddrSeqNum[4], convertedAddrSeqNum[5], convertedAddrSeqNum[6], convertedAddrSeqNum[7]});
+        return Converter.prepareForEncoding(ArrayUtils.addAll(new byte[]{type, flag, hopCount, reqId}, convertedAddrSeqNum));
     }
 
     public void incrementHopCount() {
