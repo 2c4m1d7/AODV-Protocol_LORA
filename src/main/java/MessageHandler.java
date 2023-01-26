@@ -66,6 +66,7 @@ public class MessageHandler {
         RREQ rreq;
         try {
             rreq = new RREQ(decodedPacket);
+            System.out.println(rreq);
         } catch (Exception e) {
             System.err.println(e);
             return null;
@@ -79,9 +80,7 @@ public class MessageHandler {
         if (Node.updateRouteEntry(forwardRoute)) {
             Node.updateRouteLifetimeRREQ(forwardRoute.getDestAddr());
         }
-        if (Node.updateReverseRouteEntry(reverseRoute)) {
-            Node.updateReverseRouteLifetimeRREQ(reverseRoute.getDestAddr());
-        }
+
 
         //Update forward route to originator
         Optional.ofNullable(Node.findRoute(rreq.getOriAddr()))
@@ -120,6 +119,9 @@ public class MessageHandler {
             return SendPacket.RREP.setPacket(packet).setNextHop(reverseRoute.getPrevHop());
 //            return new RREP((int) Math.abs((route.getLifetime() - Timer.getCurrentTimestamp()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount()).getBytes();
         }
+        if (Node.updateReverseRouteEntry(reverseRoute)) {
+            Node.updateReverseRouteLifetimeRREQ(reverseRoute.getDestAddr());
+        }
         return SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
 //        return rreq.getBytes();
     }
@@ -128,6 +130,7 @@ public class MessageHandler {
         RREP rrep;
         try {
             rrep = new RREP(decodedPacket);
+            System.out.println(rrep);
         } catch (Exception e) {
             System.err.println(e);
             return null;

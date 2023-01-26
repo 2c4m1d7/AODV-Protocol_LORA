@@ -10,7 +10,7 @@ public class Node {
     public static final int NODE_TRAVERSAL_TIME = 40;
     public static final int RREQ_RETRIES = 2;
     public static final int NET_DIAMETER = 35;
-    public static final int NET_TRAVERSAL_TIME = 2 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
+    public static final int NET_TRAVERSAL_TIME = 4 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
     public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
 
 
@@ -80,6 +80,8 @@ public class Node {
     }
 
     public static boolean updateRouteEntry(ForwardRoute control) {
+        if (Arrays.equals(control.getDestAddr(), Node.getADDR()))
+            return false;
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
             if (!entry.isValidSeqNum()

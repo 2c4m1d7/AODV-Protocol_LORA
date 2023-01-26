@@ -17,7 +17,6 @@ import java.util.*;
 //AT+SEND=14
 //BBACAAEAAAMI
 public record Connection(SerialPort port, Listener listener) {
-
     private static boolean connected = false;
 
     private static OutputStream outputStream;
@@ -39,9 +38,10 @@ public record Connection(SerialPort port, Listener listener) {
         return listener;
     }
 
-    public boolean sendThreadInProcess(){
-       return listener.myThread.inProcess();
+    public boolean sendThreadInProcess() {
+        return listener.myThread.inProcess();
     }
+
     public boolean connect() {
         if (!port.isOpen() && !port.openPort(2000)) {
             return false;
@@ -69,7 +69,7 @@ public record Connection(SerialPort port, Listener listener) {
         return true;
     }
 
-    public boolean send(String m)  {
+    public boolean send(String m) {
         if (outputStream == null) {
             return false;
         }
@@ -118,6 +118,7 @@ public record Connection(SerialPort port, Listener listener) {
             event.getSerialPort().readBytes(buffer, buffer.length);
 
             tmp += new String(buffer);
+            System.out.print(tmp + "|");
             if (!tmp.contains("\r\n")) {
                 return;
             } else {
@@ -214,7 +215,7 @@ public record Connection(SerialPort port, Listener listener) {
                         }
                     }
                 }
-            } catch ( InterruptedException e) {
+            } catch (InterruptedException e) {
                 System.err.println(e);
             }
 
