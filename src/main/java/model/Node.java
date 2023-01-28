@@ -139,17 +139,16 @@ public class Node {
         return ROUTE_TABLE.get(Arrays.hashCode(destAddr)); // destAddr
     }
 
+
     public static ReverseRoute findReverseRoute(byte[] destAddr) {
         return REVERSE_ROUTE_TABLE.get(Arrays.hashCode(destAddr));
     }
 
-    public static ForwardRoute validRouteExists(RREQ rreq) {
-        var route = ROUTE_TABLE.get(Arrays.hashCode(rreq.getDestAddr()));
+    public static ForwardRoute validRouteExists(byte[] destAddr) {
+        var route = findRoute(destAddr);
         if (route == null)
             return null;
-        return (route.isValid()
-//                && route.isActive()
-                && (route.getSeq() >= rreq.getDestSeqNum())) ? route : null;
+        return route.isValid() ? route : null;
     }
 
     public static List<byte[]> getValidDestAddrs() {

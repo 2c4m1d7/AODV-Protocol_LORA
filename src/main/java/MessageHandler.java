@@ -52,8 +52,8 @@ public class MessageHandler {
             return null;
         }
 
-        var route = Node.findRoute(destAddr);
-        if (route != null && route.isValid()) {
+        var route = Node.validRouteExists(destAddr);
+        if (route != null) {
             return SendPacket.UD.setPacket(decoded).setNextHop(route.getNextHop());
         } else {
             var rreq = new RREQ(RREQ.Flags.U.getValue(), (byte) 0, Node.useREQid(), destAddr, (byte) 0, Node.getADDR(), Node.getSeqNum());
@@ -100,7 +100,7 @@ public class MessageHandler {
             return null;
         }
 
-        var route = Node.validRouteExists(rreq);
+        var route = Node.validRouteExists(rreq.getDestAddr());
         if (Arrays.equals(rreq.getDestAddr(), Node.getADDR())) {
             forwardRoute.setDestAddr(reverseRoute.getDestAddr()).setSourceAddr(reverseRoute.getSourceAddr()).setHopCount(reverseRoute.getHopCount());
             forwardRoute.setNextHop(reverseRoute.getPrevHop());
