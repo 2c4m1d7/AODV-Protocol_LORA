@@ -118,7 +118,7 @@ public record Connection(SerialPort port, Listener listener) {
             event.getSerialPort().readBytes(buffer, buffer.length);
 
             tmp += new String(buffer);
-            System.out.print(tmp + "|");
+//            System.out.print(tmp + "|");
             if (!tmp.contains("\r\n")) {
                 return;
             } else {
@@ -140,7 +140,7 @@ public record Connection(SerialPort port, Listener listener) {
             }
 
             //test
-//            System.out.println(new String(buffer));
+            System.out.println(new String(buffer));
 //            printInfo();
 //            System.out.println("-------------------------");
 

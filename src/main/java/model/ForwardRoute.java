@@ -2,7 +2,7 @@ package model;
 
 import java.util.Arrays;
 
-public class ForwardRoute extends Route{
+public class ForwardRoute extends Route {
 
     private byte[] nextHop;
 
@@ -36,7 +36,7 @@ public class ForwardRoute extends Route{
 
     @Override
     public boolean isValid() {
-        return nextHop != null;
+        return nextHop != null && ((lifetime + Node.DELETE_PERIOD) <= System.currentTimeMillis());
     }
 
     @Override

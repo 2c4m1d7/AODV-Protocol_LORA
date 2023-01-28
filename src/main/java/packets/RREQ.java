@@ -45,7 +45,7 @@ public class RREQ extends Packet {
 
     public RREQ(byte[] paket) {
         super((byte) 1);
-        var addrPlusSeq = Converter.convertAddrPlusSeqNum(MyArrayUtils.getRangeArray(paket, 4, 11));
+        var addrPlusSeq = Converter.decodeAddrPlusSeqNum(MyArrayUtils.getRangeArray(paket, 4, 11));
 
         this.flag = paket[1];
         this.hopCount = paket[2];

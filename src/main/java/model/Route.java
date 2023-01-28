@@ -1,7 +1,5 @@
 package model;
 
-import utils.Timer;
-
 import java.util.Arrays;
 
 import static java.lang.Math.max;
@@ -91,14 +89,14 @@ public abstract class Route {
     }
 
     public void updateLifetimeRREQ() {
-        var currentTime = Timer.getCurrentTimestamp();
+        var currentTime = System.currentTimeMillis();
         long minimalLifetime = (currentTime + 2 * Node.NET_TRAVERSAL_TIME - 2 * hopCount * Node.NODE_TRAVERSAL_TIME);
         long existingLifeTime = lifetime;
         lifetime = max(existingLifeTime, minimalLifetime);
     }
 
     public void updateLifetimeRREP(long packetLifetime) {
-        lifetime = Timer.getCurrentTimestamp() + (packetLifetime <= 0 ? Node.ACTIVE_ROUTE_TIMEOUT : packetLifetime);
+        lifetime = System.currentTimeMillis() + (packetLifetime <= 0 ? Node.ACTIVE_ROUTE_TIMEOUT : packetLifetime);
     }
 
 

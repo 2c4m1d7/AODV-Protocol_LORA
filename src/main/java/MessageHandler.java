@@ -8,7 +8,6 @@ import packets.RREQ;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.Parser;
-import utils.Timer;
 
 import java.util.Arrays;
 import java.util.Base64;
@@ -115,7 +114,7 @@ public class MessageHandler {
             return SendPacket.RREP.setPacket(packet).setNextHop(reverseRoute.getPrevHop());
 //            return new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), Node.getSeqNum(), rreq.getOriAddr(), (byte) 0).getBytes();
         } else if (route != null) {
-            var packet = new RREP((int) Math.abs((route.getLifetime() - Timer.getCurrentTimestamp()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount()).getBytes();
+            var packet = new RREP((int) Math.abs((route.getLifetime() - System.currentTimeMillis()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount()).getBytes();
             return SendPacket.RREP.setPacket(packet).setNextHop(reverseRoute.getPrevHop());
 //            return new RREP((int) Math.abs((route.getLifetime() - Timer.getCurrentTimestamp()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount()).getBytes();
         }

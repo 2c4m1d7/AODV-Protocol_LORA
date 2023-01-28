@@ -4,6 +4,8 @@ import packets.RREQ;
 
 import java.util.*;
 
+import static java.lang.Math.max;
+
 public class Node {
     public static final int ACTIVE_ROUTE_TIMEOUT = 3000;
     public static final int MY_ROUTE_TIMEOUT = 2 * ACTIVE_ROUTE_TIMEOUT;
@@ -12,6 +14,8 @@ public class Node {
     public static final int NET_DIAMETER = 35;
     public static final int NET_TRAVERSAL_TIME = 4 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
     public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
+
+    public static final int DELETE_PERIOD = 5 * ACTIVE_ROUTE_TIMEOUT;
 
 
     private Node() {

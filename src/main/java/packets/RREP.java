@@ -26,7 +26,7 @@ public class RREP extends Packet {
 
     public RREP(byte[] paket) {
         super((byte) 2);
-        var converted = Converter.convertAddrPlusSeqNum(MyArrayUtils.getRangeArray(paket, 4, 11));
+        var converted = Converter.decodeAddrPlusSeqNum(MyArrayUtils.getRangeArray(paket, 4, 11));
 
         this.lifetime = (((int) paket[3]) | (((int) paket[2]) << 6) | ((((int) paket[1]) << 12)));
         this.destAddr = MyArrayUtils.getRangeArray(converted, 0, 3);

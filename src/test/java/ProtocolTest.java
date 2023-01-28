@@ -6,10 +6,7 @@ import org.junit.jupiter.api.Test;
 import packets.RREP;
 import packets.RREQ;
 import utils.Converter;
-import utils.Timer;
 
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.Objects;
 
 import static java.lang.Thread.sleep;
@@ -69,7 +66,7 @@ public class ProtocolTest {
         MessageHandler.handle("AT,000A,OK".getBytes());
         assertArrayEquals(new byte[]{0, 0, 0, 10}, Node.getADDR());
 
-        var expectedRREP = new RREP((byte) (Timer.getCurrentTimestamp() % 0x3ffff), new byte[]{0, 0, 0, 1}, (byte) 2, new byte[]{0, 0, 0, 3}, (byte) 0);
+        var expectedRREP = new RREP((byte) (System.currentTimeMillis() % 0x3ffff), new byte[]{0, 0, 0, 1}, (byte) 2, new byte[]{0, 0, 0, 3}, (byte) 0);
         var sendPacket = MessageHandler.handle("LR,000D,12,CABmAAECAAMA".getBytes()); // 2; 102; 0,0,0,1; 2; 0,0,0,3; 0
         assertNull(sendPacket);
 

@@ -15,9 +15,9 @@ public class Main {
 
     public static void main(String[] args) {
 //
-//        var decoded = Base64.getDecoder().decode("AAAVIYWxsbw=");//AABBIYWxsbw=
+        var decoded = Base64.getDecoder().decode("BgAAABMAABEA");//AABBIYWxsbw=
 //        out.println(Arrays.toString(decoded));
-//        var converted = Converter.userDataPacketDecode(decoded);
+        var converted = Converter.convertDecoded(decoded);
 //        out.println(new String(MyArrayUtils.getRangeArray(converted, 5, (converted.length - 1))));
 //        out.println(Arrays.toString(converted));
 //
@@ -28,8 +28,6 @@ public class Main {
 //        var encided = Converter.userDataPacketEncode(newUD);
 //        out.println(Base64.getEncoder().encodeToString(encided));
 
-        out.println(Byte.compareUnsigned((byte) 127, (byte) 128) ==-1);
-        out.println((byte) 127 < (byte) 128);
 
         if (args.length > 0) {
             return;
