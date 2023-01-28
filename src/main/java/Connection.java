@@ -4,7 +4,6 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import model.Node;
 import model.SendPacket;
 import org.apache.commons.lang3.StringUtils;
-import utils.Converter;
 import utils.Parser;
 
 import java.io.IOException;
@@ -39,7 +38,7 @@ public record Connection(SerialPort port, Listener listener) {
     }
 
     public boolean sendThreadInProcess() {
-        return listener.myThread.inProcess();
+        return listener.sendThread.inProcess();
     }
 
     public boolean connect() {
@@ -82,10 +81,6 @@ public record Connection(SerialPort port, Listener listener) {
         return true;
     }
 
-    public MyThread sendPacket(SendPacket answer) {
-        return new MyThread(answer);
-    }
-
     public void stop() {
         port.closePort();
     }
@@ -94,7 +89,7 @@ public record Connection(SerialPort port, Listener listener) {
 
         private final Set<SendPacket> sendPackets = new HashSet<>();
 
-        private MyThread myThread = new MyThread(null);
+        private SendThread sendThread = new SendThread(null);
         private final Set<String> loraResponses = Set.of("AT,SENDED");
         private String tmp = "";
         private final Connection connection;
@@ -132,9 +127,9 @@ public record Connection(SerialPort port, Listener listener) {
                 synchronized (connection) {
                     connection.notify();
                 }
-                if (myThread != null) {
-                    synchronized (myThread) {
-                        myThread.notify();
+                if (sendThread != null) {
+                    synchronized (sendThread) {
+                        sendThread.notify();
                     }
                 }
             }
@@ -154,10 +149,10 @@ public record Connection(SerialPort port, Listener listener) {
                 sendPackets.add(sendPacket);
             }
 
-            if (sendPackets.size() != 0 && !myThread.inProcess()) {
+            if (sendPackets.size() != 0 && !sendThread.inProcess()) {
                 var packet = (SendPacket) sendPackets.toArray()[0];
                 sendPackets.remove(packet);
-                myThread = sendPacket(packet);
+                sendThread = new SendThread(packet);
             }
 //            printInfo();
 //            System.out.println("***************************");
@@ -167,22 +162,19 @@ public record Connection(SerialPort port, Listener listener) {
 
         private void printInfo() {
             System.out.println(sendPackets);
-            System.out.println("Thread in process : " + myThread.inProcess());
+            System.out.println("Thread in process : " + sendThread.inProcess());
             System.out.println("My address = " + Arrays.toString(Node.getADDR()));
             System.out.println(Node.getInfo());
         }
 
-        public void setSendThread(MyThread sendThread) {
-            myThread = sendThread;
-        }
     }
 
 
-    private class MyThread implements Runnable {
+    private class SendThread implements Runnable {
         private final Thread t;
         SendPacket sendPacket;
 
-        public MyThread(SendPacket sendPacket) {
+        public SendThread(SendPacket sendPacket) {
             this.sendPacket = sendPacket;
             t = new Thread(this);
             t.start();

@@ -71,7 +71,7 @@ public class App {
             if (sendPacket == SendPacket.UD){
                 sendPacket(sendPacket);
             }else {
-                System.err.println("Not sended");
+                System.err.println("Not sent");
             }
         }
 

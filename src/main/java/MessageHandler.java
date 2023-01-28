@@ -138,7 +138,6 @@ public class MessageHandler {
         rrep.incrementHopCount();
         var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0, prevHop, true);
         byte hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 1, (byte) 0, null, false))).get().getHopCount();
-//        var hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr()).getHopCount()).orElse(Node.OVER_MAX);
         var forwardRoute = new ForwardRoute(rrep.getDestAddr(), rrep.getOriAddr(), hopCount, rrep.getDestSeqNum(), prevHop, true);
 
         if (Node.updateRouteEntry(forwardRouteToPrevHop)) {
