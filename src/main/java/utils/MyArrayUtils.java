@@ -1,9 +1,5 @@
 package utils;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.reflect.Array;
-
 public class MyArrayUtils {
 
     public static byte[] getRangeArray(byte[] arr, int from, int to) {

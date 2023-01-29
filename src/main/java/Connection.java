@@ -10,11 +10,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
-//AT+DEST=FFFF
-//AT+CFG=433920000,5,6,10,4,1,0,0,0,0,3000,8,4
-//AT+RX
-//AT+SEND=14
-//BBACAAEAAAMI
 public record Connection(SerialPort port, Listener listener) {
     private static boolean connected = false;
 

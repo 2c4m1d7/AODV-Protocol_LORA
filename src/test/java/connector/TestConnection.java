@@ -21,7 +21,6 @@ public record TestConnection(SerialPort port) {
         if (!port.isOpen() && !port.openPort(2000)) {
                 return false;
         }
-//        port.setBaudRate(115200);   scheint nicht noetig zu sein
         outputStream = port.getOutputStream();
         port.addDataListener(listener);
         return true;
