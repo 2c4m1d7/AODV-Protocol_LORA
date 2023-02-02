@@ -7,16 +7,16 @@ import packets.RREP;
 import packets.RREQ;
 import utils.Converter;
 import utils.MyArrayUtils;
+import utils.MyLogger;
 import utils.Parser;
-
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
-
 public class MessageHandler {
 
-
     public static SendPacket handle(byte[] bytes) {
+        MyLogger.info("GOT TO HANDLE: " +  new String(bytes));
+
         var s = StringUtils.substringBefore(new String(bytes), "\r");
         var addr = Optional.ofNullable(StringUtils.substringBetween(s, ",", ",")).orElse("");
         byte[] prevHop = new byte[4];
@@ -37,8 +37,11 @@ public class MessageHandler {
                 Node.setADDR(Parser.parseAddrToBytes(addr));
             }
         } catch (IllegalArgumentException e) {
-            System.err.println(s);
-            System.err.println("from " + Arrays.toString(prevHop) + " " + e);
+            MyLogger.warn("from " + Arrays.toString(prevHop) + " " + e.getMessage());
+//            System.err.println(s);
+//            System.err.println("from " + Arrays.toString(prevHop) + " " + e);
+        }catch (Exception e){
+            MyLogger.warn(e.getMessage());
         }
         return null;
     }

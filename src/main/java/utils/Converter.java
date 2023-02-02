@@ -49,9 +49,23 @@ public class Converter {
     }
 
     public static byte[] prepareForEncoding(byte[] bs) {
-        if (bs.length % PACKET_CONVERTED_SIZE != 0) {
-            throw new RuntimeException("wrong data " + Arrays.toString(bs));
-        }
+//        if (bs.length % PACKET_CONVERTED_SIZE != 0 && ((bs[0] & 0xff) >> 2) != 0) {
+//            throw new RuntimeException("wrong data " + Arrays.toString(bs));
+//        }
+        byte[] b;
+        if (((bs.length / 2 % 2 != 0) || (bs.length % 2 == 1))) {
+            int n = bs.length;
+            do {
+                n++;
+            } while (n / 2 % 2 != 0);
+            b = new byte[n];
+            for (int i = 0; i < n; i++) {
+                if (i <= bs.length - 1)
+                    b[i] = bs[i];
+                else
+                    b[i] = 0;
+            }
+        } else b = bs;
 
         var convert = new Function<byte[], byte[]>() {
             @Override
@@ -63,12 +77,12 @@ public class Converter {
             }
         };
 
-        var arr = new byte[bs.length * 3 / 4];
+        var arr = new byte[b.length * 3 / 4];
         var g = 0;
-        for (int i = 0; i < bs.length; i += 4) {
+        for (int i = 0; i < b.length; i += 4) {
             var tmp = new byte[4];
             for (int j = 0; j < 4; j++) {
-                tmp[j] = bs[i + j];
+                tmp[j] = b[i + j];
             }
             var c = 3 * g;
             for (byte b6 : convert.apply(tmp)) {
@@ -81,9 +95,23 @@ public class Converter {
     }
 
     public static byte[] convertDecoded(byte[] bs) {
-        if (bs.length % PACKET_DECODED_SIZE != 0) {
-            throw new RuntimeException("wrong data " + Arrays.toString(bs));
-        }
+//        if (bs.length % PACKET_DECODED_SIZE != 0 && (bs[0] == 0)) {
+//            throw new RuntimeException("wrong data " + Arrays.toString(bs));
+//        }
+        byte[] b;
+        if (bs.length % 3 != 0) {
+            int n = bs.length;
+            do {
+                n++;
+            } while (n % 3 != 0);
+            b = new byte[n];
+            for (int i = 0; i < n; i++) {
+                if (i <= bs.length - 1)
+                    b[i] = bs[i];
+                else
+                    b[i] = 0;
+            }
+        } else b = bs;
         var convert = new Function<byte[], byte[]>() {
             @Override
             public byte[] apply(byte[] b) {
@@ -96,12 +124,12 @@ public class Converter {
             }
         };
 
-        var arr = new byte[bs.length * 4 / 3];
+        var arr = new byte[b.length * 4 / 3];
         var g = 0;
-        for (int i = 0; i < bs.length; i += 3) {
+        for (int i = 0; i < b.length; i += 3) {
             var tmp = new byte[3];
             for (int j = 0; j < 3; j++) {
-                tmp[j] = bs[i + j];
+                tmp[j] = b[i + j];
             }
             var c = 4 * g;
             for (byte b8 : convert.apply(tmp)) {

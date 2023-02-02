@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Arrays;
+
 public enum SendPacket {
     RREQ,
     RREP,
@@ -23,5 +25,14 @@ public enum SendPacket {
     public SendPacket setNextHop(byte[] nextHop) {
         this.nextHop = nextHop;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "SendPacket{" +
+                name() +
+                "packet=" + Arrays.toString(packet) +
+                ", nextHop=" + Arrays.toString(nextHop) +
+                '}';
     }
 }

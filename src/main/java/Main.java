@@ -1,4 +1,13 @@
+import utils.Converter;
+import utils.MyArrayUtils;
+import utils.MyLogger;
+
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import static java.lang.System.*;
 import static java.lang.System.out;
@@ -6,9 +15,14 @@ import static java.lang.System.out;
 public class Main {
     static Scanner scanner = new Scanner(in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
+        var ud = Base64.getDecoder().decode("AABFoYWxvb29vb28");
+        out.println(new String(MyArrayUtils.getRangeArray(Converter.userDataPacketDecode(ud), 5, ud.length)));
 
+        if (args.length > 0) {
+            return;
+        }
         Connection connection = null;
         App app = null;
         while (true) {

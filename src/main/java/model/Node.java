@@ -1,8 +1,10 @@
 package model;
 
 import packets.RREQ;
+import utils.MyLogger;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 
@@ -12,7 +14,7 @@ public class Node {
     public static final int NODE_TRAVERSAL_TIME = 40;
     public static final int RREQ_RETRIES = 2;
     public static final int NET_DIAMETER = 35;
-    public static final int NET_TRAVERSAL_TIME = 4 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
+    public static final int NET_TRAVERSAL_TIME = 2 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
     public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
 
     public static final int DELETE_PERIOD = 5 * ACTIVE_ROUTE_TIMEOUT;
@@ -25,9 +27,12 @@ public class Node {
         private final byte requestID;
         private final byte[] oriAddr;
 
+        private long lifetime;
+
         public ProcessedRREQInfo(byte requestID, byte[] oriAddr) {
             this.requestID = requestID;
             this.oriAddr = oriAddr;
+            lifetime = System.currentTimeMillis();
         }
 
         @Override
@@ -47,10 +52,8 @@ public class Node {
 
         @Override
         public String toString() {
-            return "ProcessedRREQInfo{" +
-                    "requestID=" + requestID +
-                    ", oriAddr=" + Arrays.toString(oriAddr) +
-                    '}';
+            return "ProcessedRREQ:\n" +
+                    requestID + "\t" + Arrays.toString(oriAddr);
         }
     }
 
@@ -128,9 +131,15 @@ public class Node {
     }
 
     public static boolean RREQWasProcessed(RREQ rreq) {
-        var check = processedRREQ.contains(new ProcessedRREQInfo(rreq.getReqId(), rreq.getOriAddr()));
+        var pr = new ProcessedRREQInfo(rreq.getReqId(), rreq.getOriAddr());
+        var check = processedRREQ.contains(pr);
         if (!check) {
             processedRREQ.add(new ProcessedRREQInfo(rreq.getReqId(), rreq.getOriAddr()));
+        }
+        var pr2 = processedRREQ.stream().filter(x -> x.equals(pr)).toList().get(0);
+        if (pr.lifetime - pr2.lifetime > 5000) {
+            processedRREQ.remove(pr2);
+            check = false;
         }
         return check;
     }
@@ -153,6 +162,39 @@ public class Node {
 
     public static List<byte[]> getValidDestAddrs() {
         return ROUTE_TABLE.values().stream().filter(Route::isValid).map(Route::getDestAddr).toList();
+    }
+
+    public static void printInfo() {
+//        var tH1 = "RREQ_ID";
+//        var tH2 = "Originator";
+//        var firstTableHeader = String.format("| %-" + tH1.length() + "s | %-" + tH2.length() + "s |%n", tH1, tH2);
+//
+//        StringBuilder output = new StringBuilder();
+//        output.append("\n+");
+//        for (int j = 0; j < firstTableHeader.length(); j++) {
+//            output.append("-");
+//        }
+//        output.append("+\n");
+//        output.append(firstTableHeader);
+//        output.append("+");
+//        for (int j = 0; j < firstTableHeader.length(); j++) {
+//            output.append("-");
+//        }
+//        output.append("+\n");
+//
+//        for (ProcessedRREQInfo info : processedRREQ) {
+//            output.append(String.format("| %-" + tH1.length() + "d | %-" + tH2.length() + "s |%n", info.requestID, Arrays.toString(info.oriAddr)));
+//        }
+        var procRREQ = "Processed" + MyLogger.createTable(processedRREQ.stream().map(x -> new String[]{String.valueOf(x.requestID), Arrays.toString(x.oriAddr)}).toList(),
+                "RREQ_ID", "Originator");
+        var fRouteT = "Forward" + MyLogger.createTable(ROUTE_TABLE.values().stream()
+                        .map(x -> new String[]{Arrays.toString(x.destAddr), Arrays.toString(x.getNextHop()), String.valueOf(x.hopCount), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
+                "Dest", "Hop", "HopCount", "Valid", "Seq");
+        var rRouteT = "Reverse" + MyLogger.createTable(REVERSE_ROUTE_TABLE.values().stream()
+                        .map(x -> new String[]{Arrays.toString(x.destAddr), Arrays.toString(x.getPrevHop()), Arrays.toString(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
+                "Dest", "Prev", "Source", "HopCount", "Seq");
+
+        MyLogger.info("\n"+procRREQ + fRouteT + rRouteT);
     }
 
     /**

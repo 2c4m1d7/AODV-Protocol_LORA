@@ -6,7 +6,9 @@ import org.junit.jupiter.api.Test;
 import packets.RREP;
 import packets.RREQ;
 import utils.Converter;
+import utils.MyLogger;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import static java.lang.Thread.sleep;
@@ -15,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ProtocolTest {
 //    Connection protocol;
 //    TestConnection testConnection;
-
     @BeforeEach
     void setup() {
         Node.clearForTest();
@@ -59,6 +60,7 @@ public class ProtocolTest {
         var expectedForwardRouteReverse = new ForwardRoute(new byte[]{0, 0, 0, 3}, new byte[]{0, 0, 0, 1}, (byte) 1, (byte) -1, new byte[]{0, 0, 0, 13}, false);
         var forwardRouteReverse = Node.findRoute(expectedForwardRouteReverse.getDestAddr());
         assertEquals(expectedForwardRouteReverse, forwardRouteReverse);
+        Node.printInfo();
     }
 
     @Test
@@ -76,7 +78,6 @@ public class ProtocolTest {
 
     }
 
-    //todo test return correct rrep
 
     @Test
     void testReturnCorrectRREP() {

@@ -4,6 +4,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import model.Node;
 import model.SendPacket;
 import org.apache.commons.lang3.StringUtils;
+import utils.MyLogger;
 import utils.Parser;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ public record Connection(SerialPort port, Listener listener) {
                 send("AT+ADDR?");
                 this.wait();
 
-                send("AT+CFG=433920000,5,6,10,4,1,0,0,0,0,3000,8,4");
+                send("AT+CFG=433920000,5,7,7,4,1,0,0,0,0,3000,8,4");
                 this.wait();
 
                 send("AT+DEST=FFFF");
@@ -108,7 +109,6 @@ public record Connection(SerialPort port, Listener listener) {
             event.getSerialPort().readBytes(buffer, buffer.length);
 
             tmp += new String(buffer);
-//            System.out.print(tmp + "|");
             if (!tmp.contains("\r\n")) {
                 return;
             } else {
@@ -130,11 +130,13 @@ public record Connection(SerialPort port, Listener listener) {
             }
 
             //test
-            System.out.println(new String(buffer));
+//            System.out.println(new String(buffer));
 //            printInfo();
 //            System.out.println("-------------------------");
 
             var sendPacket = MessageHandler.handle(buffer);
+            MyLogger.info("");
+            MyLogger.info("AFTER HANDLING: " + sendPacket);
 
             if (!connected) {
                 return;
@@ -192,6 +194,8 @@ public record Connection(SerialPort port, Listener listener) {
 
                         var packet = sendPacket.getPacket();
                         packet = Base64.getEncoder().encode(packet);
+                        System.out.println("DEST = " + Arrays.toString(dest));
+                        System.out.println(new String(packet));
 
                         send("AT+SEND=" + packet.length);
                         this.wait();
