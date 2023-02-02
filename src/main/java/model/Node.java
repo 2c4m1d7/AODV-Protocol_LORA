@@ -2,6 +2,7 @@ package model;
 
 import packets.RREQ;
 import utils.MyLogger;
+import utils.Parser;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -188,10 +189,10 @@ public class Node {
         var procRREQ = "Processed" + MyLogger.createTable(processedRREQ.stream().map(x -> new String[]{String.valueOf(x.requestID), Arrays.toString(x.oriAddr)}).toList(),
                 "RREQ_ID", "Originator");
         var fRouteT = "Forward" + MyLogger.createTable(ROUTE_TABLE.values().stream()
-                        .map(x -> new String[]{Arrays.toString(x.destAddr), Arrays.toString(x.getNextHop()), String.valueOf(x.hopCount), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
+                        .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr),Parser.parseBytesToAddr(x.getNextHop()), String.valueOf(x.hopCount), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Hop", "HopCount", "Valid", "Seq");
         var rRouteT = "Reverse" + MyLogger.createTable(REVERSE_ROUTE_TABLE.values().stream()
-                        .map(x -> new String[]{Arrays.toString(x.destAddr), Arrays.toString(x.getPrevHop()), Arrays.toString(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
+                        .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getPrevHop()), Parser.parseBytesToAddr(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Prev", "Source", "HopCount", "Seq");
 
         MyLogger.info("\n"+procRREQ + fRouteT + rRouteT);

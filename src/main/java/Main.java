@@ -15,10 +15,9 @@ import static java.lang.System.out;
 public class Main {
     static Scanner scanner = new Scanner(in);
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
-        var ud = Base64.getDecoder().decode("AABFoYWxvb29vb28");
-        out.println(new String(MyArrayUtils.getRangeArray(Converter.userDataPacketDecode(ud), 5, ud.length)));
+
 
         if (args.length > 0) {
             return;
