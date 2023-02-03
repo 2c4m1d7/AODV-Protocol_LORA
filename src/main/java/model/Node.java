@@ -15,7 +15,7 @@ public class Node {
     public static final int NODE_TRAVERSAL_TIME = 40;
     public static final int RREQ_RETRIES = 2;
     public static final int NET_DIAMETER = 35;
-    public static final int NET_TRAVERSAL_TIME = 2 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
+    public static final int NET_TRAVERSAL_TIME = 3 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
     public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
 
     public static final int DELETE_PERIOD = 5 * ACTIVE_ROUTE_TIMEOUT;
@@ -91,13 +91,17 @@ public class Node {
         if (Arrays.equals(control.getDestAddr(), Node.getADDR()))
             return false;
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
+//        System.out.println("Update route");
+//        System.out.println("entry " + entry);
+//        System.out.println(System.currentTimeMillis());
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
             if (!entry.isValidSeqNum()
                     || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
                 ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
-                return true;
-            } else return false;
+
+            }
+            return true;
         }
         return true;
     }
@@ -125,6 +129,15 @@ public class Node {
 
     public static void updateRouteLifetimeRREP(byte[] destAddr, long lifetime) {
         ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREP(lifetime);
+
+//        System.out.println("Update lifetime");
+//        var route = ROUTE_TABLE.get(Arrays.hashCode(destAddr));
+//        System.out.println("Hop " + Arrays.toString(route.getNextHop()));
+//        System.out.println("lifetime to set " + lifetime + "\nset" + route.getLifetime());
+//        System.out.println("valid " + route.isValid());
+//        System.out.println(((route.getLifetime() + Node.DELETE_PERIOD) <= System.currentTimeMillis()));
+//        System.out.println();
+
     }
 
     public static void updateReverseRouteLifetimeRREP(byte[] oriAddr, long lifetime) {
@@ -186,16 +199,16 @@ public class Node {
 //        for (ProcessedRREQInfo info : processedRREQ) {
 //            output.append(String.format("| %-" + tH1.length() + "d | %-" + tH2.length() + "s |%n", info.requestID, Arrays.toString(info.oriAddr)));
 //        }
-        var procRREQ = "Processed" + MyLogger.createTable(processedRREQ.stream().map(x -> new String[]{String.valueOf(x.requestID), Arrays.toString(x.oriAddr)}).toList(),
+        var procRREQ = "Processed" + MyLogger.createTable(processedRREQ.stream().map(x -> new String[]{String.valueOf(x.requestID), Parser.parseBytesToAddr(x.oriAddr)}).toList(),
                 "RREQ_ID", "Originator");
         var fRouteT = "Forward" + MyLogger.createTable(ROUTE_TABLE.values().stream()
-                        .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr),Parser.parseBytesToAddr(x.getNextHop()), String.valueOf(x.hopCount), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
+                        .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getNextHop()), String.valueOf(x.hopCount), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Hop", "HopCount", "Valid", "Seq");
         var rRouteT = "Reverse" + MyLogger.createTable(REVERSE_ROUTE_TABLE.values().stream()
                         .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getPrevHop()), Parser.parseBytesToAddr(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Prev", "Source", "HopCount", "Seq");
 
-        MyLogger.info("\n"+procRREQ + fRouteT + rRouteT);
+        MyLogger.info("\n\nADDR= " + Arrays.toString(ADDR) + "\n" + procRREQ + fRouteT + rRouteT);
     }
 
     /**

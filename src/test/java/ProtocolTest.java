@@ -75,7 +75,7 @@ public class ProtocolTest {
         var expectedForwardRoute = new ForwardRoute(expectedRREP.getDestAddr(), expectedRREP.getOriAddr(), expectedRREP.getHopCount(), expectedRREP.getDestSeqNum(), new byte[]{0,0,0,13}, true);
         var forwardRoute = Node.findRoute(expectedForwardRoute.getDestAddr());
         assertEquals(expectedForwardRoute, forwardRoute);
-
+        Node.printInfo();
     }
 
 
@@ -91,7 +91,7 @@ public class ProtocolTest {
         assertArrayEquals(expectedRREP.getOriAddr(), rrep.getOriAddr());
         assertEquals(expectedRREP.getHopCount(), rrep.getHopCount());
         assertEquals(expectedRREP.getLifetime(), rrep.getLifetime());
-
+        Node.printInfo();
     }
 
 }

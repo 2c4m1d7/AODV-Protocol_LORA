@@ -36,7 +36,7 @@ public class ForwardRoute extends Route {
 
     @Override
     public boolean isValid() {
-        return nextHop != null && ((lifetime + Node.DELETE_PERIOD) <= System.currentTimeMillis());
+        return nextHop != null && ((lifetime + Node.DELETE_PERIOD) >= System.currentTimeMillis());
     }
 
     @Override

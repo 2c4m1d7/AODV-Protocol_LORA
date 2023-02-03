@@ -135,8 +135,7 @@ public record Connection(SerialPort port, Listener listener) {
 //            System.out.println("-------------------------");
 
             var sendPacket = MessageHandler.handle(buffer);
-            MyLogger.info("");
-            MyLogger.info("AFTER HANDLING: " + sendPacket);
+//            MyLogger.info("AFTER HANDLING: " + sendPacket);
 
             if (!connected) {
                 return;
@@ -194,12 +193,14 @@ public record Connection(SerialPort port, Listener listener) {
 
                         var packet = sendPacket.getPacket();
                         packet = Base64.getEncoder().encode(packet);
-                        System.out.println("DEST = " + Arrays.toString(dest));
-                        System.out.println(new String(packet));
+//                        System.out.println("DEST = " + Arrays.toString(dest));
+//                        System.out.println(new String(packet));
+                        MyLogger.info("\nDEST: "+Arrays.toString(dest)+"\n" + new String(packet));
 
                         send("AT+SEND=" + packet.length);
                         this.wait();
                         send(new String(packet));
+                        Node.printInfo();
                         if (!Arrays.equals(dest, Parser.parseAddrToBytes("FFFF"))) {
                             this.wait();
                             send("AT+DEST=FFFF");

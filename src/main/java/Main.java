@@ -16,8 +16,7 @@ public class Main {
     static Scanner scanner = new Scanner(in);
 
     public static void main(String[] args) {
-
-
+        MyLogger.start();
 
         if (args.length > 0) {
             return;

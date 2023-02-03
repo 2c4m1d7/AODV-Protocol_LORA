@@ -15,7 +15,7 @@ import java.util.Optional;
 public class MessageHandler {
 
     public static SendPacket handle(byte[] bytes) {
-        MyLogger.info("GOT TO HANDLE: " +  new String(bytes));
+//        MyLogger.info("GOT TO HANDLE: " +  new String(bytes));
 
         var s = StringUtils.substringBefore(new String(bytes), "\r");
         var addr = Optional.ofNullable(StringUtils.substringBetween(s, ",", ",")).orElse("");
@@ -60,6 +60,7 @@ public class MessageHandler {
             return SendPacket.UD.setPacket(decoded).setNextHop(route.getNextHop());
         } else {
             var rreq = new RREQ(RREQ.Flags.U.getValue(), (byte) 0, Node.useREQid(), destAddr, (byte) 0, Node.getADDR(), Node.getSeqNum());
+//            var sendPacketWithoutNextHop = SendPacket.UD.setPacket(decoded);
             return SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
         }
     }
@@ -68,16 +69,18 @@ public class MessageHandler {
         RREQ rreq;
         try {
             rreq = new RREQ(decodedPacket);
-            System.out.println(rreq);
+            MyLogger.info("\n\nFrom "+ Arrays.toString(prevHop)+"\n"+rreq);
+//            System.out.println(rreq);
         } catch (Exception e) {
-            System.err.println(e);
+            MyLogger.warn(e.getMessage());
+//            System.err.println(e);
             return null;
         }
 
         rreq.incrementHopCount();
-        byte hopCount = Optional.ofNullable(Node.findRoute(rreq.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 0, (byte) 0, null, false))).get().getHopCount();
+        byte hopCount = Optional.ofNullable(Node.findRoute(rreq.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 64, (byte) 0, null, false))).get().getHopCount();
         var forwardRoute = new ForwardRoute(rreq.getDestAddr(), rreq.getOriAddr(), hopCount, rreq.getOriSeqNum(), null, (rreq.getFlag() == RREQ.Flags.U.getValue()));
-        var reverseRoute = new ReverseRoute(rreq.getOriAddr(), rreq.getDestAddr(), rreq.getHopCount(), rreq.getDestSeqNum(), prevHop, true);
+        var reverseRoute = new ReverseRoute(rreq.getDestAddr(), rreq.getOriAddr(), rreq.getHopCount(), rreq.getDestSeqNum(), prevHop, true);
 
         if (Node.updateRouteEntry(forwardRoute)) {
             Node.updateRouteLifetimeRREQ(forwardRoute.getDestAddr());
@@ -132,17 +135,20 @@ public class MessageHandler {
         RREP rrep;
         try {
             rrep = new RREP(decodedPacket);
-            System.out.println(rrep);
+            MyLogger.info("\n\nFrom "+ Arrays.toString(prevHop)+"\n" +rrep);
+//            System.out.println(rrep);
         } catch (Exception e) {
-            System.err.println(e);
+            MyLogger.warn(e.getMessage());
+//            System.err.println(e);
             return null;
         }
 
         rrep.incrementHopCount();
         var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0, prevHop, true);
-        byte hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 1, (byte) 0, null, false))).get().getHopCount();
+        byte hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null,  rrep.getHopCount(), (byte) 0, null, false))).get().getHopCount();
         var forwardRoute = new ForwardRoute(rrep.getDestAddr(), rrep.getOriAddr(), hopCount, rrep.getDestSeqNum(), prevHop, true);
-
+//        System.out.println(rrep);
+//        System.out.println(forwardRoute);
         if (Node.updateRouteEntry(forwardRouteToPrevHop)) {
             Node.updateRouteLifetimeRREP(forwardRouteToPrevHop.getDestAddr(), rrep.getLifetime());
         }
@@ -165,7 +171,7 @@ public class MessageHandler {
 //                    }
 //                });
 
-        if (Arrays.equals(rrep.getDestAddr(), Node.getADDR())) {
+        if (Arrays.equals(rrep.getOriAddr(), Node.getADDR())) {
             return null;
         }
         var reverseRoute = Node.findReverseRoute(rrep.getDestAddr());

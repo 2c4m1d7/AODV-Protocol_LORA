@@ -15,7 +15,7 @@ public class Parser {
 
     public static String parseBytesToAddr(byte[] bytes) {
         if (bytes == null){
-            return null;
+            return "null";
         }
         String res = "";
         for (byte b : bytes) {
