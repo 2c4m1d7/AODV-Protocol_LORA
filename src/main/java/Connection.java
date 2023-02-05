@@ -5,6 +5,11 @@ import model.Node;
 import model.PacketType;
 import model.SendPacket;
 import org.apache.commons.lang3.StringUtils;
+import packets.RREP;
+import packets.RREQ;
+import packets.UserData;
+import utils.Converter;
+import utils.MyArrayUtils;
 import utils.MyLogger;
 import utils.Parser;
 
@@ -180,23 +185,32 @@ public record Connection(SerialPort port, Listener listener) {
                         this.wait();
 
                         var packet = sendPacket.getPacket();
-                        var packetEncoded = Base64.getEncoder().encode(packet);
+                        var packetEncoded = Base64.getEncoder().encodeToString(packet);
 
-                        send("AT+SEND=" + packetEncoded.length);
+                        send("AT+SEND=" + packetEncoded.length());
                         this.wait();
-                        send(new String(packetEncoded));
-
-                        MyLogger.info(sendPacket.toString());
-
-                        synchronized (Main.app) {
-                            Main.app.notify();
-                        }
-                        Node.logInfo();
+                        send(packetEncoded);
 
                         if (!Arrays.equals(dest, Parser.parseAddrToBytes("FFFF"))) {
                             this.wait();
                             send("AT+DEST=FFFF");
                         }
+
+                        switch (sendPacket.getType()){
+                            case UD ->  {
+                                var converted = Converter.userDataPacketDecode(packet);
+                                var destAddr = MyArrayUtils.getRangeArray(converted, 1, 4);
+                                var message = new String(MyArrayUtils.getRangeArray(converted, 5, converted.length - 1));
+                                MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new UserData(destAddr, message));
+                            }
+                            case RREQ ->  MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new RREQ(Converter.convertDecoded(packet)));
+                            case RREP ->   MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new RREP(Converter.convertDecoded(packet)));
+                        }
+
+                        synchronized (Main.app) {
+                            Main.app.notify();
+                        }
+                        Node.logInfo();
                     }
                 }
             } catch (InterruptedException e) {

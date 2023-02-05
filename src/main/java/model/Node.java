@@ -174,7 +174,7 @@ public class Node {
                         .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getPrevHop()), Parser.parseBytesToAddr(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Prev", "Source", "HopCount", "Seq");
 
-        MyLogger.info("\n\nADDR= " + Arrays.toString(ADDR) + "\n" + procRREQ + fRouteT + rRouteT+"\n");
+        MyLogger.info("\n\nADDR= " + Parser.parseBytesToAddr(ADDR) + "\n" + procRREQ + fRouteT + rRouteT+"\n");
     }
 
 

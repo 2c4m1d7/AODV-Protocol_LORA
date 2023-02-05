@@ -66,7 +66,7 @@ public class MessageHandler {
         RREQ rreq;
         try {
             rreq = new RREQ(decodedPacket);
-            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rreq + "\n");
+            MyLogger.info("\n\nFrom " + Parser.parseBytesToAddr(prevHop) + "\n" + rreq + "\n");
         } catch (Exception e) {
             MyLogger.warn(e.getMessage());
             return null;
@@ -108,28 +108,22 @@ public class MessageHandler {
                 Node.incrementSeqNum();
             }
             var packet = new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), Node.getSeqNum(), rreq.getOriAddr(), (byte) 0);
-            var sendPacket = SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
-            MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + packet);
-            return sendPacket;
+            return SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
         } else if (route != null) {
             var packet = new RREP((int) Math.abs((route.getLifetime() - System.currentTimeMillis()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount());
-            var sendPacket = SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
-            MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + packet);
-            return sendPacket;
+            return SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
         }
         if (Node.updateReverseRouteEntry(reverseRoute)) {
             Node.updateReverseRouteLifetimeRREQ(reverseRoute.getSourceAddr());
         }
-        var sendPacket = SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
-        MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + rreq);
-        return sendPacket;
+        return SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
     }
 
     private static SendPacket handleRREP(byte[] decodedPacket, byte[] prevHop) {
         RREP rrep;
         try {
             rrep = new RREP(decodedPacket);
-            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rrep + "\n");
+            MyLogger.info("\n\nFrom " + Parser.parseBytesToAddr(prevHop) + "\n" + rrep + "\n");
         } catch (Exception e) {
             MyLogger.warn(e.getMessage());
             return null;
@@ -154,9 +148,7 @@ public class MessageHandler {
         if (reverseRoute == null) {
             return null;
         }
-        var sendPacket = SendPacket.RREP.setPacket(rrep.getBytes()).setNextHop(reverseRoute.getPrevHop());
-        MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + rrep);
-        return sendPacket;
+        return SendPacket.RREP.setPacket(rrep.getBytes()).setNextHop(reverseRoute.getPrevHop());
     }
 
 

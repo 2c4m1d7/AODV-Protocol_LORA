@@ -16,24 +16,6 @@ public  class SendPacket {
     protected byte[] packet;
     protected byte[] nextHop;
 
-    public static class RREQ extends SendPacket {
-        public RREQ(PacketType type) {
-            this.type = type;
-        }
-    }
-
-    public static class RREP extends SendPacket {
-        public RREP(PacketType type) {
-            this.type = type;
-        }
-    }
-
-    public static class UD extends SendPacket {
-        public UD(PacketType type) {
-            this.type = type;
-        }
-    }
-
 
     public byte[] getPacket() {
         return packet;
@@ -79,6 +61,25 @@ public  class SendPacket {
                 ": packet=" + Base64.getEncoder().encodeToString(packet) +
                 ", nextHop=" + Parser.parseBytesToAddr(nextHop) +
                 '}';
+    }
+
+
+    public static class RREQ extends SendPacket {
+        public RREQ(PacketType type) {
+            this.type = type;
+        }
+    }
+
+    public static class RREP extends SendPacket {
+        public RREP(PacketType type) {
+            this.type = type;
+        }
+    }
+
+    public static class UD extends SendPacket {
+        public UD(PacketType type) {
+            this.type = type;
+        }
     }
 
 }

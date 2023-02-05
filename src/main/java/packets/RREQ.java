@@ -3,6 +3,7 @@ package packets;
 import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
 import utils.MyArrayUtils;
+import utils.Parser;
 
 import java.util.Arrays;
 
@@ -106,9 +107,9 @@ public class RREQ extends Packet {
                 ", flag=" + flag +
                 ", hopCount=" + hopCount +
                 ", reqId=" + reqId +
-                ", destAddr=" + Arrays.toString(destAddr) +
+                ", destAddr=" + Parser.parseBytesToAddr(destAddr) +
                 ", destSeqNum=" + destSeqNum +
-                ", oriAddr=" + Arrays.toString(oriAddr) +
+                ", oriAddr=" + Parser.parseBytesToAddr(oriAddr) +
                 ", oriSeqNum=" + oriSeqNum +
                 '}';
     }

@@ -2,6 +2,9 @@ package packets;
 
 import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
+import utils.Parser;
+
+import java.util.Arrays;
 
 public class UserData {
 
@@ -42,5 +45,13 @@ public class UserData {
 
     public byte[] getBytes(){
         return Converter.userDataPacketEncode(ArrayUtils.addAll(new byte[]{type, destAddr[0], destAddr[1], destAddr[2], destAddr[3]}, message.getBytes()));
+    }
+
+    @Override
+    public String toString() {
+        return "UserData{" +
+                "destAddr=" + Parser.parseBytesToAddr(destAddr) +
+                ", message='" + message + '\'' +
+                '}';
     }
 }
