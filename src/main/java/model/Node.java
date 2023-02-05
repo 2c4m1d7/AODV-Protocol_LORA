@@ -124,15 +124,6 @@ public class Node {
 
     public static void updateRouteLifetimeRREP(byte[] destAddr, long lifetime) {
         ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREP(lifetime);
-
-//        System.out.println("Update lifetime");
-//        var route = ROUTE_TABLE.get(Arrays.hashCode(destAddr));
-//        System.out.println("Hop " + Arrays.toString(route.getNextHop()));
-//        System.out.println("lifetime to set " + lifetime + "\nset" + route.getLifetime());
-//        System.out.println("valid " + route.isValid());
-//        System.out.println(((route.getLifetime() + Node.DELETE_PERIOD) <= System.currentTimeMillis()));
-//        System.out.println();
-
     }
 
     public static void updateReverseRouteLifetimeRREP(byte[] oriAddr, long lifetime) {
@@ -183,18 +174,9 @@ public class Node {
                         .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getPrevHop()), Parser.parseBytesToAddr(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Prev", "Source", "HopCount", "Seq");
 
-        MyLogger.info("\n\nADDR= " + Arrays.toString(ADDR) + "\n" + procRREQ + fRouteT + rRouteT);
+        MyLogger.info("\n\nADDR= " + Arrays.toString(ADDR) + "\n" + procRREQ + fRouteT + rRouteT+"\n");
     }
 
-    /**
-     * For Testing
-     */
-    public static String getInfo() {
-        return "Node{processedRREQ: " + processedRREQ +
-                "\nROUTE_TABLE: " + ROUTE_TABLE +
-                "\nREVERSE_ROUTE_TABLE: " + REVERSE_ROUTE_TABLE +
-                "\nSEQ_NUM: " + SEQ_NUM + "}";
-    }
 
     public static void clearForTest() {
         processedRREQ.clear();

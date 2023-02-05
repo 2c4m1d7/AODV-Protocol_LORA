@@ -1,7 +1,4 @@
-import model.ForwardRoute;
-import model.Node;
-import model.ReverseRoute;
-import model.SendPacket;
+import model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import packets.RREP;
@@ -46,7 +43,7 @@ public class ProtocolTest {
 
         var expectedRREQ = new RREQ((byte) 0x20, (byte) 1, (byte) 2, new byte[]{0, 0, 0, 1}, (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 8);
         var sendPacket = Objects.requireNonNull(MessageHandler.handle("LR,000D,12,BgACAAEAAAMI".getBytes())); //1,1,0,2; 0,0,0,1,0; 0,0,0,3,8
-        assertSame(SendPacket.RREQ, sendPacket);
+        assertEquals(PacketType.RREQ, sendPacket.getType());
         var actualRREQ = new RREQ(Converter.convertDecoded(sendPacket.getPacket()));
         assertEquals(expectedRREQ.getFlag(), actualRREQ.getFlag());
         assertArrayEquals(expectedRREQ.getDestAddr(), actualRREQ.getDestAddr());
@@ -104,7 +101,7 @@ public class ProtocolTest {
     void testReturnCorrectRREP() {
         var rreq = "BBACAAoAAAMI";
         var sendPacket = Objects.requireNonNull(MessageHandler.handle(("LR,0003,12," + rreq).getBytes()));
-        assertSame(SendPacket.RREP, sendPacket);
+        assertEquals(PacketType.RREP, sendPacket.getType());
         var rrep = new RREP(Converter.convertDecoded(sendPacket.getPacket()));
         var expectedRREP = new RREP(6000, Node.getADDR(), (byte) 0, new byte[]{0, 0, 0, 3}, (byte) 0);
         assertArrayEquals(expectedRREP.getDestAddr(), rrep.getDestAddr());

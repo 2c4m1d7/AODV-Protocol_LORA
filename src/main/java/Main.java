@@ -1,16 +1,7 @@
 import com.fazecast.jSerialComm.SerialPort;
 import model.SendPacket;
-import model.SendPacketT;
-import utils.Converter;
-import utils.MyArrayUtils;
-import utils.MyLogger;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import static java.lang.System.*;
 import static java.lang.System.out;
@@ -19,15 +10,19 @@ public class Main {
     static Scanner scanner = new Scanner(in);
 public static  App app = null;
     public static void main(String[] args) {
-//        MyLogger.start();
 
-        var sendP = SendPacketT.RREQ.setPacket(new byte[]{1,2,3}).setNextHop(new byte[]{1,2,3});;
-
-        Set<SendPacketT> sendPackets = new HashSet<>();
+        Set<SendPacket> sendPackets = new HashSet<>();
+        var sendP = SendPacket.RREQ.setPacket(new byte[]{1,2,3}).setNextHop(new byte[]{1,2,3});;
         sendPackets.add(sendP);
         out.println(sendPackets.contains(sendP));
-        var sendP2 = SendPacketT.RREP.setPacket(new byte[]{1,2,3}).setNextHop(new byte[]{1,2,3});
+
+        var sendP2 = SendPacket.RREQ.setPacket(new byte[]{1,2,3}).setNextHop(new byte[]{1,2,3});
         out.println(sendPackets.contains(sendP2));
+
+        sendPackets.add(sendP2);
+        out.println(sendPackets.size());
+
+
         if (args.length > 0) {
             return;
         }

@@ -1,7 +1,4 @@
-import model.ForwardRoute;
-import model.Node;
-import model.SendPacket;
-import model.ReverseRoute;
+import model.*;
 import org.apache.commons.lang3.StringUtils;
 import packets.RREP;
 import packets.RREQ;
@@ -69,11 +66,9 @@ public class MessageHandler {
         RREQ rreq;
         try {
             rreq = new RREQ(decodedPacket);
-            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rreq);
-//            System.out.println(rreq);
+            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rreq + "\n");
         } catch (Exception e) {
             MyLogger.warn(e.getMessage());
-//            System.err.println(e);
             return null;
         }
 
@@ -134,7 +129,7 @@ public class MessageHandler {
         RREP rrep;
         try {
             rrep = new RREP(decodedPacket);
-            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rrep);
+            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rrep + "\n");
         } catch (Exception e) {
             MyLogger.warn(e.getMessage());
             return null;

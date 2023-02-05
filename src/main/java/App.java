@@ -1,4 +1,5 @@
 import model.Node;
+import model.PacketType;
 import model.SendPacket;
 import packets.UserData;
 import utils.Parser;
@@ -55,23 +56,23 @@ public class App {
             i++;
             try {
                 sendPacket(sendPacket);
-                if (sendPacket == SendPacket.RREQ) {
+                if (sendPacket.getType() == PacketType.RREQ) {
                     synchronized (this) {
                         do {
                             wait();
                         } while (connection.listener().packetStillInQueue(sendPacket));
                     }
                     Thread.sleep(((long) i * i * Node.NET_TRAVERSAL_TIME));
-                } else if (sendPacket == SendPacket.UD) {
+                } else if (sendPacket.getType() == PacketType.UD) {
                     break;
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         } while (Node.RREQ_RETRIES != i);
-        if (sendPacket != SendPacket.UD) {
+        if (sendPacket.getType() != PacketType.UD) {
             sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
-            if (sendPacket == SendPacket.UD) {
+            if (sendPacket.getType() == PacketType.UD) {
                 sendPacket(sendPacket);
             } else {
                 System.err.println("Not sent");

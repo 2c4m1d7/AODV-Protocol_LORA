@@ -2,6 +2,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import model.Node;
+import model.PacketType;
 import model.SendPacket;
 import org.apache.commons.lang3.StringUtils;
 import utils.MyLogger;
@@ -185,9 +186,8 @@ public record Connection(SerialPort port, Listener listener) {
                         this.wait();
                         send(new String(packetEncoded));
 
-                        if (sendPacket == SendPacket.UD){
-                            MyLogger.info(sendPacket.toString());
-                        }
+                        MyLogger.info(sendPacket.toString());
+
                         synchronized (Main.app) {
                             Main.app.notify();
                         }

@@ -4,14 +4,36 @@ import utils.Parser;
 
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
 
-public enum SendPacket {
-    RREQ,
-    RREP,
-    UD;
+public  class SendPacket {
 
-    private byte[] packet;
-    private byte[] nextHop;
+    public static RREQ RREQ = new RREQ(PacketType.RREQ);
+    public static RREP RREP = new RREP(PacketType.RREP);
+    public static UD UD = new UD(PacketType.UD);
+
+    protected PacketType type;
+    protected byte[] packet;
+    protected byte[] nextHop;
+
+    public static class RREQ extends SendPacket {
+        public RREQ(PacketType type) {
+            this.type = type;
+        }
+    }
+
+    public static class RREP extends SendPacket {
+        public RREP(PacketType type) {
+            this.type = type;
+        }
+    }
+
+    public static class UD extends SendPacket {
+        public UD(PacketType type) {
+            this.type = type;
+        }
+    }
+
 
     public byte[] getPacket() {
         return packet;
@@ -31,12 +53,32 @@ public enum SendPacket {
         return this;
     }
 
+    public PacketType getType() {
+        return type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SendPacket that)) return false;
+        return type.equals(that.type) && Arrays.equals(packet, that.packet) && Arrays.equals(nextHop, that.nextHop);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(type);
+        result = 31 * result + Arrays.hashCode(packet);
+        result = 31 * result + Arrays.hashCode(nextHop);
+        return result;
+    }
+
     @Override
     public String toString() {
         return "SendPacket{" +
-                name() +
-                "packet=" + Base64.getEncoder().encodeToString(packet) +
+                type +
+                ": packet=" + Base64.getEncoder().encodeToString(packet) +
                 ", nextHop=" + Parser.parseBytesToAddr(nextHop) +
                 '}';
     }
+
 }
