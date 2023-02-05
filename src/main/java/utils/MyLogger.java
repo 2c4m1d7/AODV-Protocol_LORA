@@ -10,59 +10,57 @@ import java.util.logging.*;
 public class MyLogger {
     private static Logger logger;
 
-//    static {
-//        try {
-//            logger = Logger.getLogger("MyLogger");
-//            logger.setLevel(Level.ALL);
-//            FileHandler fh = new FileHandler("my_log_file.log");
-//            fh.setFormatter(new SimpleFormatter() {
-//                private static final String format = "[%1$tT] [%2$-7s] %3$s %n";
+    static {
+        try {
+            logger = Logger.getLogger("MyLogger");
+            logger.setLevel(Level.ALL);
+            FileHandler fh = new FileHandler("my_log_file.log");
+            fh.setFormatter(new SimpleFormatter() {
+                private static final String format = "[%1$tT] [%2$-7s] %3$s %n";
+
+                @Override
+                public synchronized String format(LogRecord lr) {
+                    return String.format(format,
+                            new Date(lr.getMillis()),
+                            lr.getLevel().getLocalizedName(),
+                            lr.getMessage()
+                    );
+                }
+            });
+            logger.setUseParentHandlers(false);
+            logger.addHandler(fh);
+
+        } catch (IOException e) {
+            System.err.println(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+//   public static void start(){
+//       try {
+//           logger = Logger.getLogger("MyLogger");
+//           logger.setLevel(Level.ALL);
+//           FileHandler fh = new FileHandler("my_log_file.log");
+//           fh.setFormatter(new SimpleFormatter() {
+//               private static final String format = "[%1$tT] [%2$-7s] %3$s %n";
 //
-//                @Override
-//                public synchronized String format(LogRecord lr) {
-//                    return String.format(format,
-//                            new Date(lr.getMillis()),
-//                            lr.getLevel().getLocalizedName(),
-//                            lr.getMessage()
-//                    );
-//                }
-//            });
-//            logger.setUseParentHandlers(false);
-//            logger.addHandler(fh);
+//               @Override
+//               public synchronized String format(LogRecord lr) {
+//                   return String.format(format,
+//                           new Date(lr.getMillis()),
+//                           lr.getLevel().getLocalizedName(),
+//                           lr.getMessage()
+//                   );
+//               }
+//           });
+//           logger.setUseParentHandlers(false);
+//           logger.addHandler(fh);
 //
-//        } catch (IOException e) {
-//            System.err.println(e);
-//            warn(e.getMessage());
-////            throw new RuntimeException(e);
-//        }
-//    }
-
-   public static void start(){
-       try {
-           logger = Logger.getLogger("MyLogger");
-           logger.setLevel(Level.ALL);
-           FileHandler fh = new FileHandler("my_log_file.log");
-           fh.setFormatter(new SimpleFormatter() {
-               private static final String format = "[%1$tT] [%2$-7s] %3$s %n";
-
-               @Override
-               public synchronized String format(LogRecord lr) {
-                   return String.format(format,
-                           new Date(lr.getMillis()),
-                           lr.getLevel().getLocalizedName(),
-                           lr.getMessage()
-                   );
-               }
-           });
-           logger.setUseParentHandlers(false);
-           logger.addHandler(fh);
-
-       } catch (IOException e) {
-           System.err.println(e);
-           warn(e.getMessage());
+//       } catch (IOException e) {
+//           System.err.println(e);
 //            throw new RuntimeException(e);
-       }
-   }
+//       }
+//   }
 
     public static void info(String msg) {
         logger.info(msg);

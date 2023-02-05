@@ -5,7 +5,6 @@ import utils.MyLogger;
 import utils.Parser;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.Math.max;
 
@@ -15,7 +14,7 @@ public class Node {
     public static final int NODE_TRAVERSAL_TIME = 40;
     public static final int RREQ_RETRIES = 2;
     public static final int NET_DIAMETER = 35;
-    public static final int NET_TRAVERSAL_TIME = 3 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
+    public static final int NET_TRAVERSAL_TIME = 2 * NODE_TRAVERSAL_TIME * NET_DIAMETER;
     public static final int PATH_DISCOVERY_TIME = 2 * NET_TRAVERSAL_TIME;
 
     public static final int DELETE_PERIOD = 5 * ACTIVE_ROUTE_TIMEOUT;
@@ -91,28 +90,24 @@ public class Node {
         if (Arrays.equals(control.getDestAddr(), Node.getADDR()))
             return false;
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
-//        System.out.println("Update route");
-//        System.out.println("entry " + entry);
-//        System.out.println(System.currentTimeMillis());
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
             if (!entry.isValidSeqNum()
-                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
+                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) >= 0
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
                 ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
-
-            }
-            return true;
+                return true;
+            }else return false;
         }
         return true;
     }
 
     public static boolean updateReverseRouteEntry(ReverseRoute control) {
-        var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
+        var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getSourceAddr()), control);
         if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
             if (!entry.isValidSeqNum()
-                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
+                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) >= 0
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
-                REVERSE_ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
+                REVERSE_ROUTE_TABLE.put(Arrays.hashCode(control.getSourceAddr()), control);
                 return true;
             } else return false;
         }
@@ -123,8 +118,8 @@ public class Node {
         ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREQ();
     }
 
-    public static void updateReverseRouteLifetimeRREQ(byte[] destAddr) {
-        REVERSE_ROUTE_TABLE.get(Arrays.hashCode(destAddr)).updateLifetimeRREQ();
+    public static void updateReverseRouteLifetimeRREQ(byte[] oriAddr) {
+        REVERSE_ROUTE_TABLE.get(Arrays.hashCode(oriAddr)).updateLifetimeRREQ();
     }
 
     public static void updateRouteLifetimeRREP(byte[] destAddr, long lifetime) {
@@ -163,8 +158,8 @@ public class Node {
     }
 
 
-    public static ReverseRoute findReverseRoute(byte[] destAddr) {
-        return REVERSE_ROUTE_TABLE.get(Arrays.hashCode(destAddr));
+    public static ReverseRoute findReverseRoute(byte[] oriAddr) {
+        return REVERSE_ROUTE_TABLE.get(Arrays.hashCode(oriAddr));
     }
 
     public static ForwardRoute validRouteExists(byte[] destAddr) {
@@ -178,27 +173,7 @@ public class Node {
         return ROUTE_TABLE.values().stream().filter(Route::isValid).map(Route::getDestAddr).toList();
     }
 
-    public static void printInfo() {
-//        var tH1 = "RREQ_ID";
-//        var tH2 = "Originator";
-//        var firstTableHeader = String.format("| %-" + tH1.length() + "s | %-" + tH2.length() + "s |%n", tH1, tH2);
-//
-//        StringBuilder output = new StringBuilder();
-//        output.append("\n+");
-//        for (int j = 0; j < firstTableHeader.length(); j++) {
-//            output.append("-");
-//        }
-//        output.append("+\n");
-//        output.append(firstTableHeader);
-//        output.append("+");
-//        for (int j = 0; j < firstTableHeader.length(); j++) {
-//            output.append("-");
-//        }
-//        output.append("+\n");
-//
-//        for (ProcessedRREQInfo info : processedRREQ) {
-//            output.append(String.format("| %-" + tH1.length() + "d | %-" + tH2.length() + "s |%n", info.requestID, Arrays.toString(info.oriAddr)));
-//        }
+    public static void logInfo() {
         var procRREQ = "Processed" + MyLogger.createTable(processedRREQ.stream().map(x -> new String[]{String.valueOf(x.requestID), Parser.parseBytesToAddr(x.oriAddr)}).toList(),
                 "RREQ_ID", "Originator");
         var fRouteT = "Forward" + MyLogger.createTable(ROUTE_TABLE.values().stream()

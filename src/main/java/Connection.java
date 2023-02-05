@@ -129,19 +129,12 @@ public record Connection(SerialPort port, Listener listener) {
                 }
             }
 
-            //test
-//            System.out.println(new String(buffer));
-//            printInfo();
-//            System.out.println("-------------------------");
-
             var sendPacket = MessageHandler.handle(buffer);
-//            MyLogger.info("AFTER HANDLING: " + sendPacket);
 
             if (!connected) {
                 return;
             }
             if (sendPacket != null) {
-//                System.out.println("Antwort = " + Base64.getEncoder().encodeToString(sendPacket.getPacket()));
                 sendPackets.add(sendPacket);
             }
 
@@ -150,18 +143,12 @@ public record Connection(SerialPort port, Listener listener) {
                 sendPackets.remove(packet);
                 sendThread = new SendThread(packet);
             }
-//            printInfo();
-//            System.out.println("***************************");
-
-
         }
 
-        private void printInfo() {
-            System.out.println(sendPackets);
-            System.out.println("Thread in process : " + sendThread.inProcess());
-            System.out.println("My address = " + Arrays.toString(Node.getADDR()));
-            System.out.println(Node.getInfo());
+        public boolean packetStillInQueue(SendPacket sendPacket) {
+            return sendPackets.contains(sendPacket);
         }
+
 
     }
 
@@ -192,15 +179,20 @@ public record Connection(SerialPort port, Listener listener) {
                         this.wait();
 
                         var packet = sendPacket.getPacket();
-                        packet = Base64.getEncoder().encode(packet);
-//                        System.out.println("DEST = " + Arrays.toString(dest));
-//                        System.out.println(new String(packet));
-                        MyLogger.info("\nDEST: "+Arrays.toString(dest)+"\n" + new String(packet));
+                        var packetEncoded = Base64.getEncoder().encode(packet);
 
-                        send("AT+SEND=" + packet.length);
+                        send("AT+SEND=" + packetEncoded.length);
                         this.wait();
-                        send(new String(packet));
-                        Node.printInfo();
+                        send(new String(packetEncoded));
+
+                        if (sendPacket == SendPacket.UD){
+                            MyLogger.info(sendPacket.toString());
+                        }
+                        synchronized (Main.app) {
+                            Main.app.notify();
+                        }
+                        Node.logInfo();
+
                         if (!Arrays.equals(dest, Parser.parseAddrToBytes("FFFF"))) {
                             this.wait();
                             send("AT+DEST=FFFF");

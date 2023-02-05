@@ -15,8 +15,6 @@ public class App {
     }
 
     public void start() {
-//        System.out.println("Addres " + Arrays.toString(Node.getADDR()));
-//        System.out.println(Node.getInfo());
         var userData = new UserData();
         Scanner scanner = new Scanner(System.in);
         System.out.println("Send data");
@@ -35,10 +33,9 @@ public class App {
                 addr = Parser.parseAddrToBytes(input);
             }
         } catch (IllegalArgumentException e) {
-
             try {
                 addr = Parser.parseAddrToBytes(input);
-            }catch (IllegalArgumentException e1){
+            } catch (IllegalArgumentException e1) {
                 System.err.println(e);
                 System.err.println(e1);
                 return;
@@ -59,8 +56,12 @@ public class App {
             try {
                 sendPacket(sendPacket);
                 if (sendPacket == SendPacket.RREQ) {
+                    synchronized (this) {
+                        do {
+                            wait();
+                        } while (connection.listener().packetStillInQueue(sendPacket));
+                    }
                     Thread.sleep(((long) i * i * Node.NET_TRAVERSAL_TIME));
-//                    System.out.println("sended");
                 } else if (sendPacket == SendPacket.UD) {
                     break;
                 }
@@ -70,9 +71,9 @@ public class App {
         } while (Node.RREQ_RETRIES != i);
         if (sendPacket != SendPacket.UD) {
             sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
-            if (sendPacket == SendPacket.UD){
+            if (sendPacket == SendPacket.UD) {
                 sendPacket(sendPacket);
-            }else {
+            } else {
                 System.err.println("Not sent");
             }
         }

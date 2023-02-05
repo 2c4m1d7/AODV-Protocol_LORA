@@ -9,19 +9,21 @@ import utils.Converter;
 import utils.MyArrayUtils;
 import utils.MyLogger;
 import utils.Parser;
+
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
+
 public class MessageHandler {
 
     public static SendPacket handle(byte[] bytes) {
-//        MyLogger.info("GOT TO HANDLE: " +  new String(bytes));
 
         var s = StringUtils.substringBefore(new String(bytes), "\r");
         var addr = Optional.ofNullable(StringUtils.substringBetween(s, ",", ",")).orElse("");
         byte[] prevHop = new byte[4];
         try {
             if (s.contains("LR")) {
+                MyLogger.info("GOT TO HANDLE: " + new String(bytes));
                 var arr = s.split(",");
                 prevHop = Parser.parseAddrToBytes(arr[1]);
                 var data = arr[3];
@@ -38,9 +40,7 @@ public class MessageHandler {
             }
         } catch (IllegalArgumentException e) {
             MyLogger.warn("from " + Arrays.toString(prevHop) + " " + e.getMessage());
-//            System.err.println(s);
-//            System.err.println("from " + Arrays.toString(prevHop) + " " + e);
-        }catch (Exception e){
+        } catch (Exception e) {
             MyLogger.warn(e.getMessage());
         }
         return null;
@@ -69,7 +69,7 @@ public class MessageHandler {
         RREQ rreq;
         try {
             rreq = new RREQ(decodedPacket);
-            MyLogger.info("\n\nFrom "+ Arrays.toString(prevHop)+"\n"+rreq);
+            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rreq);
 //            System.out.println(rreq);
         } catch (Exception e) {
             MyLogger.warn(e.getMessage());
@@ -78,29 +78,25 @@ public class MessageHandler {
         }
 
         rreq.incrementHopCount();
-        byte hopCount = Optional.ofNullable(Node.findRoute(rreq.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null, (byte) 64, (byte) 0, null, false))).get().getHopCount();
-        var forwardRoute = new ForwardRoute(rreq.getDestAddr(), rreq.getOriAddr(), hopCount, rreq.getOriSeqNum(), null, (rreq.getFlag() == RREQ.Flags.U.getValue()));
+        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0x40, prevHop, false);
+        byte hopCount;
+        var r = Node.findRoute(rreq.getDestAddr());
+        if (r != null) {
+            hopCount = r.getHopCount();
+        } else hopCount = 0x40;
+        var forwardRoute = new ForwardRoute(rreq.getDestAddr(), rreq.getOriAddr(), hopCount, rreq.getDestSeqNum(), null, (rreq.getFlag() == RREQ.Flags.U.getValue()));
+        var forwardRouteReverse = new ForwardRoute(rreq.getOriAddr(), rreq.getDestAddr(), rreq.getHopCount(), rreq.getOriSeqNum(), prevHop, true);
         var reverseRoute = new ReverseRoute(rreq.getDestAddr(), rreq.getOriAddr(), rreq.getHopCount(), rreq.getDestSeqNum(), prevHop, true);
 
+        if (Node.updateRouteEntry(forwardRouteToPrevHop)) {
+            Node.updateRouteLifetimeRREQ(forwardRouteToPrevHop.getDestAddr());
+        }
         if (Node.updateRouteEntry(forwardRoute)) {
             Node.updateRouteLifetimeRREQ(forwardRoute.getDestAddr());
         }
-
-
-        //Update forward route to originator
-        Optional.ofNullable(Node.findRoute(rreq.getOriAddr()))
-                .ifPresentOrElse(r -> {
-                    r.setHopCount(rreq.getHopCount());
-                    r.setNextHop(prevHop);
-                    if (Node.updateRouteEntry(r)) {
-                        Node.updateRouteLifetimeRREQ(r.getDestAddr());
-                    }
-                }, () -> {
-                    var r = new ForwardRoute(rreq.getOriAddr(), rreq.getDestAddr(), rreq.getHopCount(), rreq.getOriSeqNum(), prevHop, (rreq.getFlag() == RREQ.Flags.U.getValue()));
-                    if (Node.updateRouteEntry(r)) {
-                        Node.updateRouteLifetimeRREQ(r.getDestAddr());
-                    }
-                });
+        if (Node.updateRouteEntry(forwardRouteReverse)) {
+            Node.updateRouteLifetimeRREQ(forwardRouteReverse.getDestAddr());
+        }
 
         if (Node.RREQWasProcessed(rreq)) {
             return null;
@@ -116,39 +112,38 @@ public class MessageHandler {
             if ((Node.getSeqNum() + 1) == rreq.getDestSeqNum()) {
                 Node.incrementSeqNum();
             }
-            var packet = new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), Node.getSeqNum(), rreq.getOriAddr(), (byte) 0).getBytes();
-            return SendPacket.RREP.setPacket(packet).setNextHop(reverseRoute.getPrevHop());
-//            return new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), Node.getSeqNum(), rreq.getOriAddr(), (byte) 0).getBytes();
+            var packet = new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), Node.getSeqNum(), rreq.getOriAddr(), (byte) 0);
+            var sendPacket = SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
+            MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + packet);
+            return sendPacket;
         } else if (route != null) {
-            var packet = new RREP((int) Math.abs((route.getLifetime() - System.currentTimeMillis()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount()).getBytes();
-            return SendPacket.RREP.setPacket(packet).setNextHop(reverseRoute.getPrevHop());
-//            return new RREP((int) Math.abs((route.getLifetime() - Timer.getCurrentTimestamp()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount()).getBytes();
+            var packet = new RREP((int) Math.abs((route.getLifetime() - System.currentTimeMillis()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount());
+            var sendPacket = SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
+            MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + packet);
+            return sendPacket;
         }
         if (Node.updateReverseRouteEntry(reverseRoute)) {
-            Node.updateReverseRouteLifetimeRREQ(reverseRoute.getDestAddr());
+            Node.updateReverseRouteLifetimeRREQ(reverseRoute.getSourceAddr());
         }
-        return SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
-//        return rreq.getBytes();
+        var sendPacket = SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
+        MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + rreq);
+        return sendPacket;
     }
 
     private static SendPacket handleRREP(byte[] decodedPacket, byte[] prevHop) {
         RREP rrep;
         try {
             rrep = new RREP(decodedPacket);
-            MyLogger.info("\n\nFrom "+ Arrays.toString(prevHop)+"\n" +rrep);
-//            System.out.println(rrep);
+            MyLogger.info("\n\nFrom " + Arrays.toString(prevHop) + "\n" + rrep);
         } catch (Exception e) {
             MyLogger.warn(e.getMessage());
-//            System.err.println(e);
             return null;
         }
 
         rrep.incrementHopCount();
-        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0, prevHop, true);
-        byte hopCount = Optional.ofNullable(Node.findRoute(rrep.getDestAddr())).or(() -> Optional.of(new ForwardRoute(null, null,  rrep.getHopCount(), (byte) 0, null, false))).get().getHopCount();
-        var forwardRoute = new ForwardRoute(rrep.getDestAddr(), rrep.getOriAddr(), hopCount, rrep.getDestSeqNum(), prevHop, true);
-//        System.out.println(rrep);
-//        System.out.println(forwardRoute);
+        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0x40, prevHop, false);
+        var forwardRoute = new ForwardRoute(rrep.getDestAddr(), rrep.getOriAddr(), rrep.getHopCount(), rrep.getDestSeqNum(), prevHop, true);
+
         if (Node.updateRouteEntry(forwardRouteToPrevHop)) {
             Node.updateRouteLifetimeRREP(forwardRouteToPrevHop.getDestAddr(), rrep.getLifetime());
         }
@@ -156,31 +151,17 @@ public class MessageHandler {
             Node.updateRouteLifetimeRREP(forwardRoute.getDestAddr(), rrep.getLifetime());
         }
 
-//        //Update forward route to originator
-//        Optional.ofNullable(Node.findRoute(rrep.getOriAddr()))
-//                .ifPresentOrElse(r -> {
-//                    r.setHopCount(rrep.getHopCount());
-//                    r.setNextHop(prevHop);
-//                    if (Node.updateRouteEntry(r)) {
-//                        Node.updateRouteLifetimeRREP(r.getDestAddr(), rrep.getLifetime());
-//                    }
-//                }, () -> {
-//                    var r = new ForwardRoute(rrep.getOriAddr(), rrep.getDestAddr(), Node.OVER_MAX, (byte) -1, prevHop, (Node.OVER_MAX == RREQ.Flags.U.getValue()));
-//                    if (Node.updateRouteEntry(r)) {
-//                        Node.updateRouteLifetimeRREP(r.getDestAddr(), rrep.getLifetime());
-//                    }
-//                });
 
         if (Arrays.equals(rrep.getOriAddr(), Node.getADDR())) {
             return null;
         }
-        var reverseRoute = Node.findReverseRoute(rrep.getDestAddr());
+        var reverseRoute = Node.findReverseRoute(rrep.getOriAddr());
         if (reverseRoute == null) {
             return null;
         }
-
-        return SendPacket.RREP.setPacket(rrep.getBytes()).setNextHop(reverseRoute.getPrevHop());
-//        return ArrayUtils.addAll(rrep.getBytes(), reverseRoute.getPrevHop());
+        var sendPacket = SendPacket.RREP.setPacket(rrep.getBytes()).setNextHop(reverseRoute.getPrevHop());
+        MyLogger.info("\nDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + new String(Base64.getEncoder().encode(sendPacket.getPacket())) + "\t->\t" + rrep);
+        return sendPacket;
     }
 
 

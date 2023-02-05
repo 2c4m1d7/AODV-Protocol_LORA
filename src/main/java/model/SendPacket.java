@@ -1,11 +1,15 @@
 package model;
 
+import utils.Parser;
+
 import java.util.Arrays;
+import java.util.Base64;
 
 public enum SendPacket {
     RREQ,
     RREP,
     UD;
+
     private byte[] packet;
     private byte[] nextHop;
 
@@ -31,8 +35,8 @@ public enum SendPacket {
     public String toString() {
         return "SendPacket{" +
                 name() +
-                "packet=" + Arrays.toString(packet) +
-                ", nextHop=" + Arrays.toString(nextHop) +
+                "packet=" + Base64.getEncoder().encodeToString(packet) +
+                ", nextHop=" + Parser.parseBytesToAddr(nextHop) +
                 '}';
     }
 }

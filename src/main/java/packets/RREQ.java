@@ -85,8 +85,6 @@ public class RREQ extends Packet {
     }
 
     public byte getOriSeqNum() {
-        if (flag == U.value)
-            return oriSeqNum = 0;
         return oriSeqNum;
     }
 
