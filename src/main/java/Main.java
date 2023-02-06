@@ -12,34 +12,10 @@ public class Main {
     public static App app = null;
 
     public static void main(String[] args) {
-
-        Set<SendPacket> sendPackets = new HashSet<>();
-        var sendP = SendPacket.RREQ.setPacket(new byte[]{1, 2, 3}).setNextHop(new byte[]{1, 2, 3});
-        ;
-        sendPackets.add(sendP);
-        out.println(sendPackets.contains(sendP));
-
-        var sendP2 = SendPacket.RREQ.setPacket(new byte[]{1, 2, 3}).setNextHop(new byte[]{1, 2, 3});
-        out.println(sendPackets.contains(sendP2));
-
-        sendPackets.add(sendP2);
-        out.println(sendPackets.size());
-
-
-        int current =  100;
-        for (int i = 0; i <= 255; i++) {
-
-            var a = (i % 0x100);
-            out.println(a);
-//            out.println(i+": singed: "+ (Utils.compareSeqNums(i,current)>0) +" "+(a>0 || Byte.compareUnsigned((byte) i, (byte) current) >0));
-
-        }
-
         if (args.length > 0) {
             return;
         }
         Connection connection = null;
-//        App app = null;
         while (true) {
             if (connection == null) {
                 connection = setConnection();
@@ -48,7 +24,6 @@ public class Main {
                 app.start();
             }
         }
-//        connection.stop();
     }
 
 
