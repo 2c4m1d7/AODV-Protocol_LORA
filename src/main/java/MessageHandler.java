@@ -2,11 +2,13 @@ import model.*;
 import org.apache.commons.lang3.StringUtils;
 import packets.RREP;
 import packets.RREQ;
+import packets.UserData;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.MyLogger;
 import utils.Parser;
 
+import javax.imageio.stream.ImageInputStreamImpl;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
@@ -29,7 +31,11 @@ public class MessageHandler {
                 return switch (converted[0]) {
                     case 1 -> handleRREQ(converted, prevHop);
                     case 2 -> handleRREP(converted, prevHop);
-                    case 0 -> handleUD(decoded, prevHop);
+                    case 0 -> {
+                        Main.app.sendUD(SendPacket.UD.setPacket(decoded).setNextHop(prevHop));
+//                        handleUD(decoded, prevHop);
+                        yield null;
+                    }
                     default -> null;
                 };
             } else if (addr.length() == 4 && s.contains("AT")) {
@@ -56,11 +62,17 @@ public class MessageHandler {
         if (route != null) {
             return SendPacket.UD.setPacket(decoded).setNextHop(route.getNextHop());
         } else {
-            var rreq = new RREQ(RREQ.Flags.U.getValue(), (byte) 0, Node.useREQid(), destAddr, (byte) 0, Node.getADDR(), Node.getSeqNum());
-//            var sendPacketWithoutNextHop = SendPacket.UD.setPacket(decoded);
+            route = Node.findRoute(destAddr);
+            RREQ rreq;
+            if (route != null) {
+                rreq = new RREQ((byte) 0, (byte) 0, Node.useREQid(), destAddr, route.getSeq(), Node.getADDR(), Node.getSeqNum());
+            } else {
+                rreq = new RREQ(RREQ.Flags.U.getValue(), (byte) 0, Node.useREQid(), destAddr, (byte) 0, Node.getADDR(), Node.getSeqNum());
+            }
             return SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
         }
     }
+
 
     private static SendPacket handleRREQ(byte[] decodedPacket, byte[] prevHop) {
         RREQ rreq;

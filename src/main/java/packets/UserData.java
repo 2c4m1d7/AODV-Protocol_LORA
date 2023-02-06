@@ -2,6 +2,7 @@ package packets;
 
 import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
+import utils.MyArrayUtils;
 import utils.Parser;
 
 import java.util.Arrays;
@@ -19,6 +20,12 @@ public class UserData {
     public UserData(byte[] destAddr, String message) {
         this.destAddr = destAddr;
         this.message = message;
+    }
+
+    public UserData(byte[] decoded) {
+        var converted = Converter.userDataPacketDecode(decoded);
+        destAddr = MyArrayUtils.getRangeArray(converted, 1, 4);
+        message = new String(MyArrayUtils.getRangeArray(converted, 5, converted.length - 1));
     }
 
     public byte[] getDestAddr() {
@@ -39,11 +46,11 @@ public class UserData {
         return this;
     }
 
-    public byte getType(){
+    public byte getType() {
         return type;
     }
 
-    public byte[] getBytes(){
+    public byte[] getBytes() {
         return Converter.userDataPacketEncode(ArrayUtils.addAll(new byte[]{type, destAddr[0], destAddr[1], destAddr[2], destAddr[3]}, message.getBytes()));
     }
 

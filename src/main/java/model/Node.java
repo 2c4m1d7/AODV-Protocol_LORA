@@ -90,10 +90,10 @@ public class Node {
         if (Arrays.equals(control.getDestAddr(), Node.getADDR()))
             return false;
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
-        if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
+        if (entry != null) {
             if (!entry.isValidSeqNum()
-                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) >= 0
-                    || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
+                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
+                    || ((Byte.compareUnsigned(control.getSeq(), entry.getSeq()) == 0) && control.getHopCount() < entry.getHopCount())) {
                 ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
                 return true;
             }else return false;
@@ -103,9 +103,9 @@ public class Node {
 
     public static boolean updateReverseRouteEntry(ReverseRoute control) {
         var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getSourceAddr()), control);
-        if (entry != null) {  // https://github.com/2c4m1d7/AODV-Protocol_LORA#create-or-update-routes  3. ii.
+        if (entry != null) {
             if (!entry.isValidSeqNum()
-                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) >= 0
+                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
                     || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
                 REVERSE_ROUTE_TABLE.put(Arrays.hashCode(control.getSourceAddr()), control);
                 return true;

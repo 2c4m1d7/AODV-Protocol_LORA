@@ -79,7 +79,6 @@ public record Connection(SerialPort port, Listener listener) {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-//        outputStream.flush();
         return true;
     }
 
@@ -91,7 +90,7 @@ public record Connection(SerialPort port, Listener listener) {
 
         private final Set<SendPacket> sendPackets = new HashSet<>();
 
-        private SendThread sendThread = new SendThread(null);
+        private SendThread sendThread = new SendThread();
         private final Set<String> loraResponses = Set.of("AT,SENDED");
         private String tmp = "";
         private final Connection connection;
@@ -140,6 +139,8 @@ public record Connection(SerialPort port, Listener listener) {
             if (!connected) {
                 return;
             }
+
+
             if (sendPacket != null) {
                 sendPackets.add(sendPacket);
             }
@@ -147,6 +148,7 @@ public record Connection(SerialPort port, Listener listener) {
             if (sendPackets.size() != 0 && !sendThread.inProcess()) {
                 var packet = (SendPacket) sendPackets.toArray()[0];
                 sendPackets.remove(packet);
+                sendThread.stop();
                 sendThread = new SendThread(packet);
             }
         }
@@ -154,9 +156,8 @@ public record Connection(SerialPort port, Listener listener) {
         public boolean packetStillInQueue(SendPacket sendPacket) {
             return sendPackets.contains(sendPacket);
         }
-
-
     }
+
 
 
     private class SendThread implements Runnable {
@@ -169,13 +170,25 @@ public record Connection(SerialPort port, Listener listener) {
             t.start();
         }
 
+        public SendThread() {
+            t = new Thread(this);
+            t.start();
+        }
+
+        public void stop() {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         public boolean inProcess() {
             return t.isAlive();
         }
 
         @Override
         public void run() {
-
             try {
                 if (sendPacket != null) {
                     synchronized (this) {
@@ -196,17 +209,22 @@ public record Connection(SerialPort port, Listener listener) {
                             send("AT+DEST=FFFF");
                         }
 
-                        switch (sendPacket.getType()){
-                            case UD ->  {
+                        switch (sendPacket.getType()) {
+                            case UD -> {
                                 var converted = Converter.userDataPacketDecode(packet);
                                 var destAddr = MyArrayUtils.getRangeArray(converted, 1, 4);
                                 var message = new String(MyArrayUtils.getRangeArray(converted, 5, converted.length - 1));
                                 MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new UserData(destAddr, message));
                             }
-                            case RREQ ->  MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new RREQ(Converter.convertDecoded(packet)));
-                            case RREP ->   MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new RREP(Converter.convertDecoded(packet)));
+                            case RREQ ->
+                                    MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new RREQ(Converter.convertDecoded(packet)));
+                            case RREP ->
+                                    MyLogger.info("\tDEST: " + Parser.parseBytesToAddr(sendPacket.getNextHop()) + "\t->\t" + packetEncoded + "\t->\t" + new RREP(Converter.convertDecoded(packet)));
                         }
 
+                        synchronized (Main.app.getSendUDThread()) {
+                            Main.app.getSendUDThread().notify();
+                        }
                         synchronized (Main.app) {
                             Main.app.notify();
                         }
@@ -216,7 +234,6 @@ public record Connection(SerialPort port, Listener listener) {
             } catch (InterruptedException e) {
                 System.err.println(e);
             }
-
         }
 
     }
