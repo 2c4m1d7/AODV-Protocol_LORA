@@ -29,11 +29,11 @@ public class RREQ extends Packet {
     private byte hopCount;
     private final byte reqId;
     private final byte[] destAddr;
-    private byte destSeqNum;
+    private int destSeqNum;
     private final byte[] oriAddr;
-    private byte oriSeqNum;
+    private int oriSeqNum;
 
-    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, byte destSeqNum, byte[] oriAddr, byte oriSeqNum) {
+    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, int destSeqNum, byte[] oriAddr, int oriSeqNum) {
         super((byte) 1);
         this.flag = flag;
         this.hopCount = hopCount;
@@ -77,7 +77,7 @@ public class RREQ extends Packet {
         return destAddr;
     }
 
-    public byte getDestSeqNum() {
+    public int getDestSeqNum() {
         return destSeqNum;
     }
 
@@ -85,14 +85,14 @@ public class RREQ extends Packet {
         return oriAddr;
     }
 
-    public byte getOriSeqNum() {
+    public int getOriSeqNum() {
         return oriSeqNum;
     }
 
 
     public byte[] getBytes() {
-        var convertedAddrSeqNum = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0], destAddr[1], destAddr[2], destAddr[3], destSeqNum,
-                oriAddr[0], oriAddr[1], oriAddr[2], oriAddr[3], oriSeqNum});
+        var convertedAddrSeqNum = Converter.prepareAddrPlusSeqNumToSend(new byte[]{destAddr[0], destAddr[1], destAddr[2], destAddr[3], (byte) destSeqNum,
+                oriAddr[0], oriAddr[1], oriAddr[2], oriAddr[3], (byte) oriSeqNum});
         return Converter.prepareForEncoding(ArrayUtils.addAll(new byte[]{type, flag, hopCount, reqId}, convertedAddrSeqNum));
     }
 

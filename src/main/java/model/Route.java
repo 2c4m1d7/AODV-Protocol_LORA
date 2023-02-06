@@ -8,13 +8,13 @@ public abstract class Route {
     protected byte[] destAddr;
     protected byte[] sourceAddr;
     protected byte hopCount;
-    protected byte seq;
+    protected int seq;
     protected long lifetime;
     protected boolean active;
 
     protected boolean validSeqNum;
 
-    public Route(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, boolean validSeqNum) {
+    public Route(byte[] destAddr, byte[] sourceAddr, byte hopCount, int seq, boolean validSeqNum) {
         this.destAddr = destAddr;
         this.sourceAddr = sourceAddr;
         this.hopCount = hopCount;
@@ -58,11 +58,11 @@ public abstract class Route {
         return this;
     }
 
-    public byte getSeq() {
+    public int getSeq() {
         return seq;
     }
 
-    public Route setSeq(byte seq) {
+    public Route setSeq(int seq) {
         this.seq = seq;
         return this;
     }

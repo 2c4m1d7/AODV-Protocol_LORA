@@ -3,6 +3,7 @@ package model;
 import packets.RREQ;
 import utils.MyLogger;
 import utils.Parser;
+import utils.Utils;
 
 import java.util.*;
 
@@ -62,7 +63,7 @@ public class Node {
     private static final Map<Integer, ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
     private static byte[] ADDR;
     private static byte REQUEST_ID = 0;
-    private static byte SEQ_NUM = 0;
+    private static int SEQ_NUM = 0;
 
     public static void setADDR(byte[] addr) {
         ADDR = addr;
@@ -72,7 +73,7 @@ public class Node {
         return ADDR;
     }
 
-    public static byte getSeqNum() {
+    public static int getSeqNum() {
         return SEQ_NUM++;
     }
 
@@ -83,7 +84,7 @@ public class Node {
     }
 
     public static void incrementSeqNum() {
-        SEQ_NUM = (byte) ((SEQ_NUM + 1) % 0x3f);
+        SEQ_NUM = ((SEQ_NUM + 1) % 0x100);
     }
 
     public static boolean updateRouteEntry(ForwardRoute control) {
@@ -92,8 +93,8 @@ public class Node {
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
         if (entry != null) {
             if (!entry.isValidSeqNum()
-                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
-                    || ((Byte.compareUnsigned(control.getSeq(), entry.getSeq()) == 0) && control.getHopCount() < entry.getHopCount())) {
+                    || Utils.compareSeqNums(control.getSeq(), entry.getSeq()) > 0
+                    || ((Utils.compareSeqNums(control.getSeq(), entry.getSeq()) == 0) && (control.getHopCount() < entry.getHopCount()))) {
                 ROUTE_TABLE.put(Arrays.hashCode(control.getDestAddr()), control);
                 return true;
             }else return false;
@@ -105,8 +106,8 @@ public class Node {
         var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getSourceAddr()), control);
         if (entry != null) {
             if (!entry.isValidSeqNum()
-                    || Byte.compareUnsigned(control.getSeq(), entry.getSeq()) > 0
-                    || ((control.getSeq() == entry.getSeq()) && control.getHopCount() < entry.getHopCount())) {
+                    || Utils.compareSeqNums(control.getSeq(), entry.getSeq()) > 0
+                    || ((Utils.compareSeqNums(control.getSeq(), entry.getSeq()) == 0) && control.getHopCount() < entry.getHopCount())) {
                 REVERSE_ROUTE_TABLE.put(Arrays.hashCode(control.getSourceAddr()), control);
                 return true;
             } else return false;

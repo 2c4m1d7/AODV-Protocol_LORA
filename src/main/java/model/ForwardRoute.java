@@ -7,7 +7,7 @@ public class ForwardRoute extends Route {
     private byte[] nextHop;
 
 
-    public ForwardRoute(byte[] destAddr, byte[] sourceAddr, byte hopCount, byte seq, byte[] nextHop, boolean validSeqNum) {
+    public ForwardRoute(byte[] destAddr, byte[] sourceAddr, byte hopCount, int seq, byte[] nextHop, boolean validSeqNum) {
         super(destAddr, sourceAddr, hopCount, seq, validSeqNum);
         this.nextHop = nextHop;
     }
