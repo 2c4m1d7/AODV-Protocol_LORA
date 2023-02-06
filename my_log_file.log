@@ -1,239 +1,57 @@
-[17:42:26] [INFORMATION] 	DEST: FFFF	->	BgAAAAMAAAoA	->	RREQ{type=1, flag=32, hopCount=0, reqId=0, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=0} 
-[17:42:26] [INFORMATION] 
+[23:26:29] [INFORMATION] GOT TO HANDLE: LR,0003,12,AAANoYWxsbw=
+LR,0003,12,AAANoYWxsbw=
+ 
+[23:26:32] [INFORMATION] 	DEST: FFFF	->	BgAAAAMAAAoA	->	RREQ{type=1, flag=32, hopCount=0, reqId=0, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=0} 
+[23:26:32] [INFORMATION] 
 
 ADDR= 000A
 ProcessednullForwardnullReversenull
  
-[17:42:29] [INFORMATION] GOT TO HANDLE: LR,0003,12,CBdwAAMBAAoH
- 
-[17:42:29] [INFORMATION] 
-
-From 0003
-RREP{type=2, lifeTime=6000, destAddr=0003, destSeqNum=1, oriAddr=000A, hopCount=7}
- 
-[17:42:31] [INFORMATION] 	DEST: FFFF	->	BgABAAMAAAoB	->	RREQ{type=1, flag=32, hopCount=0, reqId=1, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=1} 
-[17:42:31] [INFORMATION] 
+[23:26:38] [INFORMATION] 	DEST: FFFF	->	BgABAAMAAAoB	->	RREQ{type=1, flag=32, hopCount=0, reqId=1, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=1} 
+[23:26:38] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  
-[17:42:45] [INFORMATION] 	DEST: 0003	->	AAANoYWxsbw=	->	UserData{destAddr=0003, message='hallo'} 
-[17:42:45] [INFORMATION] 
+[23:26:59] [INFORMATION] GOT TO HANDLE: LR,0003,12,AAANoYWxsbw=
+ 
+[23:27:02] [INFORMATION] 	DEST: FFFF	->	BgADAAMAAAoD	->	RREQ{type=1, flag=32, hopCount=0, reqId=3, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=3} 
+[23:27:02] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  
-[17:43:31] [INFORMATION] 	DEST: FFFF	->	BAACAAMBAAoC	->	RREQ{type=1, flag=0, hopCount=0, reqId=2, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=2} 
-[17:43:31] [INFORMATION] 
+[23:27:08] [INFORMATION] 	DEST: FFFF	->	BgAEAAMAAAoE	->	RREQ{type=1, flag=32, hopCount=0, reqId=4, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=4} 
+[23:27:08] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  
-[17:43:33] [INFORMATION] GOT TO HANDLE: LR,0003,12,CBdwAAMBAAoH
+[23:27:36] [INFORMATION] GOT TO HANDLE: LR,0003,12,AAANoYWxsbw=
  
-[17:43:33] [INFORMATION] 
-
-From 0003
-RREP{type=2, lifeTime=6000, destAddr=0003, destSeqNum=1, oriAddr=000A, hopCount=7}
- 
-[17:43:37] [INFORMATION] 	DEST: 0003	->	AAANoYWxsbw=	->	UserData{destAddr=0003, message='hallo'} 
-[17:43:37] [INFORMATION] 
+[23:27:39] [INFORMATION] 	DEST: FFFF	->	BgAGAAMAAAoG	->	RREQ{type=1, flag=32, hopCount=0, reqId=6, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=6} 
+[23:27:39] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  
-[17:44:34] [INFORMATION] GOT TO HANDLE: LR,0005,12,AAANoYWxsbw=
+[23:27:41] [INFORMATION] GOT TO HANDLE: LR,0003,12,AAANoYWxsbw=
  
-[17:44:37] [INFORMATION] 	DEST: FFFF	->	BAADAAMBAAoD	->	RREQ{type=1, flag=0, hopCount=0, reqId=3, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=3} 
-[17:44:37] [INFORMATION] 
+[23:27:45] [INFORMATION] 	DEST: FFFF	->	BgAHAAMAAAoH	->	RREQ{type=1, flag=32, hopCount=0, reqId=7, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=7} 
+[23:27:45] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  
-[17:44:43] [INFORMATION] 	DEST: FFFF	->	BAAEAAMBAAoE	->	RREQ{type=1, flag=0, hopCount=0, reqId=4, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=4} 
-[17:44:43] [INFORMATION] 
+[23:27:59] [INFORMATION] 	DEST: FFFF	->	BgAJAAMAAAoJ	->	RREQ{type=1, flag=32, hopCount=0, reqId=9, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=9} 
+[23:27:59] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  
-[17:44:47] [INFORMATION] GOT TO HANDLE: LR,0003,12,CBdwAAMBAAoH
- 
-[17:44:47] [INFORMATION] 
-
-From 0003
-RREP{type=2, lifeTime=6000, destAddr=0003, destSeqNum=1, oriAddr=000A, hopCount=7}
- 
-[17:44:57] [INFORMATION] 	DEST: 0003	->	AAANoYWxsbw=	->	UserData{destAddr=0003, message='hallo'} 
-[17:44:57] [INFORMATION] 
+[23:28:05] [INFORMATION] 	DEST: FFFF	->	BgAKAAMAAAoK	->	RREQ{type=1, flag=32, hopCount=0, reqId=10, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=10} 
+[23:28:05] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:45:00] [INFORMATION] GOT TO HANDLE: LR,0005,12,AAANoYWxsbw=
- 
-[17:45:03] [INFORMATION] 	DEST: 0003	->	AAANoYWxsbw=	->	UserData{destAddr=0003, message='hallo'} 
-[17:45:03] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:45:09] [INFORMATION] GOT TO HANDLE: LR,0005,12,AAANoYWxsbw=
- 
-[17:45:12] [INFORMATION] 	DEST: FFFF	->	BAAFAAMBAAoF	->	RREQ{type=1, flag=0, hopCount=0, reqId=5, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=5} 
-[17:45:12] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:45:18] [INFORMATION] 	DEST: FFFF	->	BAAGAAMBAAoG	->	RREQ{type=1, flag=0, hopCount=0, reqId=6, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=6} 
-[17:45:18] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:51:33] [INFORMATION] 	DEST: FFFF	->	BAAIAAMBAAoI	->	RREQ{type=1, flag=0, hopCount=0, reqId=8, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=8} 
-[17:51:33] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:51:39] [INFORMATION] 	DEST: FFFF	->	BAAJAAMBAAoJ	->	RREQ{type=1, flag=0, hopCount=0, reqId=9, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=9} 
-[17:51:39] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:53:02] [INFORMATION] 	DEST: FFFF	->	BAALAAMBAAoL	->	RREQ{type=1, flag=0, hopCount=0, reqId=11, destAddr=0003, destSeqNum=1, oriAddr=000A, oriSeqNum=11} 
-[17:53:02] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 1   |
-+--------------------------------------+
-Reversenull
- 
-[17:53:05] [INFORMATION] GOT TO HANDLE: LR,0003,12,CBdwAAMCAAoH
- 
-[17:53:05] [INFORMATION] 
-
-From 0003
-RREP{type=2, lifeTime=6000, destAddr=0003, destSeqNum=2, oriAddr=000A, hopCount=7}
- 
-[17:53:08] [INFORMATION] 	DEST: 0003	->	AAANoYWxsbw=	->	UserData{destAddr=0003, message='hallo'} 
-[17:53:08] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 2   |
-+--------------------------------------+
-Reversenull
- 
-[17:53:39] [INFORMATION] 	DEST: FFFF	->	BAAMAAMCAAoM	->	RREQ{type=1, flag=0, hopCount=0, reqId=12, destAddr=0003, destSeqNum=2, oriAddr=000A, oriSeqNum=12} 
-[17:53:39] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | false | 2   |
-+--------------------------------------+
-Reversenull
- 
-[17:53:41] [INFORMATION] GOT TO HANDLE: LR,0003,12,CBdwAAMBAAoH
- 
-[17:53:41] [INFORMATION] 
-
-From 0003
-RREP{type=2, lifeTime=6000, destAddr=0003, destSeqNum=1, oriAddr=000A, hopCount=7}
- 
-[17:53:45] [INFORMATION] 	DEST: 0003	->	AAANzZGZzZA=	->	UserData{destAddr=0003, message='sdfsd'} 
-[17:53:45] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
-+--------------------------------------+
-| Dest | Hop  | HopCount | Valid | Seq |
-+--------------------------------------+
-| 0003 | 0003 | 8        | true  | 1   |
-+--------------------------------------+
-Reversenull
+ProcessednullForwardnullReversenull
  

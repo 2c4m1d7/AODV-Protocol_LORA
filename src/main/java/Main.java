@@ -12,6 +12,15 @@ public class Main {
     public static App app = null;
 
     public static void main(String[] args) {
+
+        int current =  0;
+        for (int i = 0; i <= 255; i++) {
+
+            var a = Utils.compareSeqNums(i,current);
+            out.println(i+": "+ ((a>0) ));
+
+        }
+
         if (args.length > 0) {
             return;
         }
@@ -29,7 +38,7 @@ public class Main {
 
     private static Connection setConnection() {
         Connection connection;
-        var port = SerialPort.getCommPort("/dev/ttys001");
+        var port = SerialPort.getCommPort("/dev/ttys003");
 
         var ports = Connection.getPorts();
         for (int i = 0; i < ports.length; i++) {

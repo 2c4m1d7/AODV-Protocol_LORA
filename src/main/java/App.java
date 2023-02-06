@@ -55,36 +55,6 @@ public class App {
         userData.setMessage(message);
 
         send(SendPacket.UD.setPacket(userData.getBytes()));
-//        SendPacket sendPacket;
-//        var i = 0;
-//        do {
-//            sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
-//            i++;
-//            try {
-//                sendPacket(sendPacket);
-//                if (sendPacket.getType() == PacketType.RREQ) {
-//                    synchronized (this) {
-//                        do {
-//                            wait();
-//                        } while (connection.listener().packetStillInQueue(sendPacket));
-//                    }
-//                    Thread.sleep(((long) i * i * Node.NET_TRAVERSAL_TIME));
-//                } else if (sendPacket.getType() == PacketType.UD) {
-//                    break;
-//                }
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        } while (Node.RREQ_RETRIES != i);
-//        if (sendPacket.getType() != PacketType.UD) {
-//            sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
-//            if (sendPacket.getType() == PacketType.UD) {
-//                sendPacket(sendPacket);
-//            } else {
-//                System.err.println("Not sent");
-//            }
-//        }
-
     }
 
     public void sendUD(SendPacket sendPacket) {
@@ -123,39 +93,6 @@ public class App {
                 sendPackets.remove(0);
                 send(sendPacket);
             } while (sendPackets.size() != 0);
-
-//            UserData userData = new UserData(sendPacket.getPacket());
-//            var i = 0;
-//            do {
-//                sendPacket = MessageHandler.handleUD(userData.getBytes(), sendPacket.getNextHop());
-//                if (sendPacket==null){
-//                    break;
-//                }
-//                i++;
-//                try {
-//                    sendPacket(sendPacket);
-//                    if (sendPacket.getType() == PacketType.RREQ) {
-//                        synchronized (this) {
-//                            do {
-//                                wait();
-//                            } while (connection.listener().packetStillInQueue(sendPacket));
-//                        }
-//                        Thread.sleep(((long) i * i * Node.NET_TRAVERSAL_TIME));
-//                    } else if (sendPacket.getType() == PacketType.UD) {
-//                        break;
-//                    }
-//                } catch (InterruptedException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            } while (Node.RREQ_RETRIES != i);
-//            if (sendPacket.getType() != PacketType.UD) {
-//                sendPacket = MessageHandler.handleUD(userData.getBytes(), null);
-//                if (sendPacket.getType() == PacketType.UD) {
-//                    sendPacket(sendPacket);
-//                } else {
-//                    System.err.println("Not sent");
-//                }
-//            }
         }
 
         public boolean isInProcess() {
@@ -176,7 +113,7 @@ public class App {
         do {
             sendPacket = MessageHandler.handleUD(userData.getBytes(), sendPacket.getNextHop());
             if (sendPacket == null) {
-                break;
+                return;
             }
             i++;
             try {
