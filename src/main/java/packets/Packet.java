@@ -11,4 +11,8 @@ public abstract class Packet {
     public byte getType() {
         return type;
     }
+
+    protected int convertSeqNum(byte seq){
+        return seq & 0xff;
+    }
 }

@@ -65,9 +65,9 @@ public class MessageHandler {
             route = Node.findRoute(destAddr);
             RREQ rreq;
             if (route != null) {
-                rreq = new RREQ((byte) 0, (byte) 0, Node.useREQid(), destAddr, route.getSeq(), Node.getADDR(), Node.getSeqNum());
+                rreq = new RREQ((byte) 0, (byte) 0, Node.useREQid(), destAddr, (byte) route.getSeq(), Node.getADDR(), (byte) Node.getSeqNum());
             } else {
-                rreq = new RREQ(RREQ.Flags.U.getValue(), (byte) 0, Node.useREQid(), destAddr, (byte) 0, Node.getADDR(), Node.getSeqNum());
+                rreq = new RREQ(RREQ.Flags.U.getValue(), (byte) 0, Node.useREQid(), destAddr, (byte) 0, Node.getADDR(), (byte) Node.getSeqNum());
             }
             return SendPacket.RREQ.setPacket(rreq.getBytes()).setNextHop(Parser.parseAddrToBytes("FFFF"));
         }
@@ -119,10 +119,10 @@ public class MessageHandler {
             if ((Node.getSeqNum() + 1) == rreq.getDestSeqNum()) {
                 Node.incrementSeqNum();
             }
-            var packet = new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), Node.getSeqNum(), rreq.getOriAddr(), (byte) 0);
+            var packet = new RREP(Node.MY_ROUTE_TIMEOUT, rreq.getDestAddr(), (byte) Node.getSeqNum(), rreq.getOriAddr(), (byte) 0);
             return SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
         } else if (route != null) {
-            var packet = new RREP((int) Math.abs((route.getLifetime() - System.currentTimeMillis()) % 0x3ffff), rreq.getDestAddr(), route.getSeq(), rreq.getOriAddr(), route.getHopCount());
+            var packet = new RREP((int) Math.abs((route.getLifetime() - System.currentTimeMillis()) % 0x3ffff), rreq.getDestAddr(), (byte) route.getSeq(), rreq.getOriAddr(), route.getHopCount());
             return SendPacket.RREP.setPacket(packet.getBytes()).setNextHop(reverseRoute.getPrevHop());
         }
         if (Node.updateReverseRouteEntry(reverseRoute)) {

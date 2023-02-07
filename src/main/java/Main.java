@@ -10,14 +10,17 @@ import static java.lang.System.out;
 public class Main {
     static Scanner scanner = new Scanner(in);
     public static App app = null;
-
+static int convert(byte f){
+    return f & 0xff;
+}
     public static void main(String[] args) {
-
+//        var f = (byte) 0;
+//        out.println(convert(f));
         int current =  0;
         for (int i = 0; i <= 255; i++) {
 
-            var a = Utils.compareSeqNums(i,current);
-            out.println(i+": "+ ((a>0) ));
+            var a = convert((byte) i);
+            out.println((byte)i+": "+ ((a) ));
 
         }
 

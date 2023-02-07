@@ -14,12 +14,12 @@ public class RREP extends Packet {
     private byte[] oriAddr;
     private byte hopCount;
 
-    public RREP(int lifetime, byte[] destAddr, int destSeqNum, byte[] oriAddr, byte hopCount) {
+    public RREP(int lifetime, byte[] destAddr, byte destSeqNum, byte[] oriAddr, byte hopCount) {
         super((byte) 2);
 
         this.lifetime = lifetime;
         this.destAddr = destAddr;
-        this.destSeqNum = destSeqNum;
+        this.destSeqNum = convertSeqNum(destSeqNum);
         this.oriAddr = oriAddr;
         this.hopCount = hopCount;
     }
@@ -31,7 +31,7 @@ public class RREP extends Packet {
 
         this.lifetime = (((int) paket[3]) | (((int) paket[2]) << 6) | ((((int) paket[1]) << 12)));
         this.destAddr = MyArrayUtils.getRangeArray(converted, 0, 3);
-        this.destSeqNum = converted[4];
+        this.destSeqNum = convertSeqNum(converted[4]);
         this.oriAddr = MyArrayUtils.getRangeArray(converted, 5, 8);
         this.hopCount = converted[9];
     }

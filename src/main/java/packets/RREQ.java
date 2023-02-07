@@ -33,15 +33,15 @@ public class RREQ extends Packet {
     private final byte[] oriAddr;
     private int oriSeqNum;
 
-    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, int destSeqNum, byte[] oriAddr, int oriSeqNum) {
+    public RREQ(byte flag, byte hopCount, byte reqId, byte[] destAddr, byte destSeqNum, byte[] oriAddr, byte oriSeqNum) {
         super((byte) 1);
         this.flag = flag;
         this.hopCount = hopCount;
         this.reqId = reqId;
         this.destAddr = destAddr;
-        this.destSeqNum = destSeqNum;
+        this.destSeqNum = convertSeqNum(destSeqNum);
         this.oriAddr = oriAddr;
-        this.oriSeqNum = oriSeqNum;
+        this.oriSeqNum = convertSeqNum(oriSeqNum);
     }
 
     public RREQ(byte[] paket) {
@@ -52,9 +52,9 @@ public class RREQ extends Packet {
         this.hopCount = paket[2];
         this.reqId = paket[3];
         this.destAddr = MyArrayUtils.getRangeArray(addrPlusSeq, 0, 3);
-        this.destSeqNum = addrPlusSeq[4];
+        this.destSeqNum = convertSeqNum(addrPlusSeq[4]);
         this.oriAddr = MyArrayUtils.getRangeArray(addrPlusSeq, 5, 8);
-        this.oriSeqNum = addrPlusSeq[9];
+        this.oriSeqNum = convertSeqNum(addrPlusSeq[9]);
     }
 
     public byte getFlag() {
