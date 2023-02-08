@@ -1,8 +1,10 @@
 import model.*;
+import model.route.ForwardRoute;
+import model.route.ReverseRoute;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import packets.RREP;
-import packets.RREQ;
+import model.packets.RREP;
+import model.packets.RREQ;
 import utils.Converter;
 
 import java.util.Objects;

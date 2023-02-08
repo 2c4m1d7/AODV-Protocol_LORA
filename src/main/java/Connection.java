@@ -2,12 +2,11 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import model.Node;
-import model.PacketType;
 import model.SendPacket;
 import org.apache.commons.lang3.StringUtils;
-import packets.RREP;
-import packets.RREQ;
-import packets.UserData;
+import model.packets.RREP;
+import model.packets.RREQ;
+import model.packets.UserData;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.MyLogger;
@@ -88,10 +87,10 @@ public record Connection(SerialPort port, Listener listener) {
 
     public class Listener implements SerialPortDataListener {
 
-        private final Set<SendPacket> sendPackets = new HashSet<>();
+        private final List<SendPacket> sendPackets = new ArrayList<>();
 
         private SendThread sendThread = new SendThread();
-        private final Set<String> loraResponses = Set.of("AT,SENDED");
+        private final List<String> loraResponses = List.of("AT,SENDED");
         private String tmp = "";
         private final Connection connection;
 
@@ -146,8 +145,8 @@ public record Connection(SerialPort port, Listener listener) {
             }
 
             if (sendPackets.size() != 0 && !sendThread.inProcess()) {
-                var packet = (SendPacket) sendPackets.toArray()[0];
-                sendPackets.remove(packet);
+                var packet = sendPackets.get(0);
+                sendPackets.remove(0);
                 sendThread.stop();
                 sendThread = new SendThread(packet);
             }

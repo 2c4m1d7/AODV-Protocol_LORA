@@ -1,4 +1,4 @@
-package model;
+package model.route;
 
 
 import java.util.Arrays;

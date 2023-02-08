@@ -1,11 +1,9 @@
-package packets;
+package model.packets;
 
 import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.Parser;
-
-import java.util.Arrays;
 
 public class RREP extends Packet {
     private int lifetime;
@@ -19,7 +17,7 @@ public class RREP extends Packet {
 
         this.lifetime = lifetime;
         this.destAddr = destAddr;
-        this.destSeqNum = convertSeqNum(destSeqNum);
+        this.destSeqNum = convertSeqNumToUnsigned(destSeqNum);
         this.oriAddr = oriAddr;
         this.hopCount = hopCount;
     }
@@ -31,7 +29,7 @@ public class RREP extends Packet {
 
         this.lifetime = (((int) paket[3]) | (((int) paket[2]) << 6) | ((((int) paket[1]) << 12)));
         this.destAddr = MyArrayUtils.getRangeArray(converted, 0, 3);
-        this.destSeqNum = convertSeqNum(converted[4]);
+        this.destSeqNum = convertSeqNumToUnsigned(converted[4]);
         this.oriAddr = MyArrayUtils.getRangeArray(converted, 5, 8);
         this.hopCount = converted[9];
     }

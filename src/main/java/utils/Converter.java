@@ -8,8 +8,6 @@ import java.util.function.Function;
 
 public class Converter {
 
-    private static final int PACKET_DECODED_SIZE = 9;
-    private static final int PACKET_CONVERTED_SIZE = 12;
 
     public static byte[] userDataPacketEncode(byte[] udPacket) {
 
@@ -49,9 +47,6 @@ public class Converter {
     }
 
     public static byte[] prepareForEncoding(byte[] bs) {
-//        if (bs.length % PACKET_CONVERTED_SIZE != 0 && ((bs[0] & 0xff) >> 2) != 0) {
-//            throw new RuntimeException("wrong data " + Arrays.toString(bs));
-//        }
         byte[] b;
         if (((bs.length / 2 % 2 != 0) || (bs.length % 2 == 1))) {
             int n = bs.length;
@@ -95,9 +90,6 @@ public class Converter {
     }
 
     public static byte[] convertDecoded(byte[] bs) {
-//        if (bs.length % PACKET_DECODED_SIZE != 0 && (bs[0] == 0)) {
-//            throw new RuntimeException("wrong data " + Arrays.toString(bs));
-//        }
         byte[] b;
         if (bs.length % 3 != 0) {
             int n = bs.length;

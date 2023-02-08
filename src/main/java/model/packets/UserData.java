@@ -1,28 +1,28 @@
-package packets;
+package model.packets;
 
 import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.Parser;
 
-import java.util.Arrays;
+public class UserData extends Packet{
 
-public class UserData {
-
-    private static final byte type = 0;
     private byte[] destAddr;
 
     private String message;
 
     public UserData() {
+        super((byte) 0);
     }
 
     public UserData(byte[] destAddr, String message) {
+        super((byte) 0);
         this.destAddr = destAddr;
         this.message = message;
     }
 
     public UserData(byte[] decoded) {
+        super((byte) 0);
         var converted = Converter.userDataPacketDecode(decoded);
         destAddr = MyArrayUtils.getRangeArray(converted, 1, 4);
         message = new String(MyArrayUtils.getRangeArray(converted, 5, converted.length - 1));

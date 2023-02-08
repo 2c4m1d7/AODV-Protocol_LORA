@@ -1,14 +1,14 @@
 import model.*;
+import model.route.ForwardRoute;
+import model.route.ReverseRoute;
 import org.apache.commons.lang3.StringUtils;
-import packets.RREP;
-import packets.RREQ;
-import packets.UserData;
+import model.packets.RREP;
+import model.packets.RREQ;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.MyLogger;
 import utils.Parser;
 
-import javax.imageio.stream.ImageInputStreamImpl;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
@@ -85,12 +85,12 @@ public class MessageHandler {
         }
 
         rreq.incrementHopCount();
-        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0x40, prevHop, false);
+        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0, prevHop, false);
         byte hopCount;
         var r = Node.findRoute(rreq.getDestAddr());
         if (r != null) {
             hopCount = r.getHopCount();
-        } else hopCount = 0x40;
+        } else hopCount = 0;
         var forwardRoute = new ForwardRoute(rreq.getDestAddr(), rreq.getOriAddr(), hopCount, rreq.getDestSeqNum(), null, (rreq.getFlag() == RREQ.Flags.U.getValue()));
         var forwardRouteReverse = new ForwardRoute(rreq.getOriAddr(), rreq.getDestAddr(), rreq.getHopCount(), rreq.getOriSeqNum(), prevHop, true);
         var reverseRoute = new ReverseRoute(rreq.getDestAddr(), rreq.getOriAddr(), rreq.getHopCount(), rreq.getDestSeqNum(), prevHop, true);
@@ -142,7 +142,7 @@ public class MessageHandler {
         }
 
         rrep.incrementHopCount();
-        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0x40, prevHop, false);
+        var forwardRouteToPrevHop = new ForwardRoute(prevHop, null, (byte) 1, (byte) 0, prevHop, false);
         var forwardRoute = new ForwardRoute(rrep.getDestAddr(), rrep.getOriAddr(), rrep.getHopCount(), rrep.getDestSeqNum(), prevHop, true);
 
         if (Node.updateRouteEntry(forwardRouteToPrevHop)) {

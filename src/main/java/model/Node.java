@@ -1,6 +1,9 @@
 package model;
 
-import packets.RREQ;
+import model.packets.RREQ;
+import model.route.ForwardRoute;
+import model.route.ReverseRoute;
+import model.route.Route;
 import utils.MyLogger;
 import utils.Parser;
 import utils.Utils;
@@ -59,7 +62,7 @@ public class Node {
     }
 
     private static final Set<ProcessedRREQInfo> processedRREQ = new HashSet<>();
-    private static final Map<Integer, ForwardRoute> ROUTE_TABLE = new HashMap<>();
+    private static  Map<Integer, ForwardRoute> ROUTE_TABLE = new HashMap<>();
     private static final Map<Integer, ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
     private static byte[] ADDR;
     private static byte REQUEST_ID = 0;
@@ -88,6 +91,11 @@ public class Node {
     }
 
     public static boolean updateRouteEntry(ForwardRoute control) {
+        Map<Integer, ForwardRoute> tmp = new HashMap<>();
+       ROUTE_TABLE.keySet().stream().filter(x-> ROUTE_TABLE.get(x).isValid()).forEach(x-> {
+           tmp.put(x, ROUTE_TABLE.get(x));
+       });
+       ROUTE_TABLE = tmp;
         if (Arrays.equals(control.getDestAddr(), Node.getADDR()))
             return false;
         var entry = ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getDestAddr()), control);
@@ -138,7 +146,7 @@ public class Node {
             processedRREQ.add(new ProcessedRREQInfo(rreq.getReqId(), rreq.getOriAddr()));
         }
         var pr2 = processedRREQ.stream().filter(x -> x.equals(pr)).toList().get(0);
-        if (pr.lifetime - pr2.lifetime > 5000) {
+        if (pr.lifetime - pr2.lifetime > Node.DELETE_PERIOD) {
             processedRREQ.remove(pr2);
             check = false;
         }
@@ -169,10 +177,10 @@ public class Node {
         var procRREQ = "Processed" + MyLogger.createTable(processedRREQ.stream().map(x -> new String[]{String.valueOf(x.requestID), Parser.parseBytesToAddr(x.oriAddr)}).toList(),
                 "RREQ_ID", "Originator");
         var fRouteT = "Forward" + MyLogger.createTable(ROUTE_TABLE.values().stream()
-                        .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getNextHop()), String.valueOf(x.hopCount), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
+                        .map(x -> new String[]{Parser.parseBytesToAddr(x.getDestAddr()), Parser.parseBytesToAddr(x.getNextHop()), String.valueOf(x.getHopCount()), String.valueOf(x.isValid()), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Hop", "HopCount", "Valid", "Seq");
         var rRouteT = "Reverse" + MyLogger.createTable(REVERSE_ROUTE_TABLE.values().stream()
-                        .map(x -> new String[]{Parser.parseBytesToAddr(x.destAddr), Parser.parseBytesToAddr(x.getPrevHop()), Parser.parseBytesToAddr(x.getSourceAddr()), String.valueOf(x.hopCount), String.valueOf(x.getSeq())}).toList(),
+                        .map(x -> new String[]{Parser.parseBytesToAddr(x.getDestAddr()), Parser.parseBytesToAddr(x.getPrevHop()), Parser.parseBytesToAddr(x.getSourceAddr()), String.valueOf(x.getHopCount()), String.valueOf(x.getSeq())}).toList(),
                 "Dest", "Prev", "Source", "HopCount", "Seq");
 
         MyLogger.info("\n\nADDR= " + Parser.parseBytesToAddr(ADDR) + "\n" + procRREQ + fRouteT + rRouteT+"\n");

@@ -1,6 +1,4 @@
 import com.fazecast.jSerialComm.SerialPort;
-import model.SendPacket;
-import utils.Utils;
 
 import java.util.*;
 
@@ -10,19 +8,18 @@ import static java.lang.System.out;
 public class Main {
     static Scanner scanner = new Scanner(in);
     public static App app = null;
-static int convert(byte f){
-    return f & 0xff;
-}
+
+
     public static void main(String[] args) {
-//        var f = (byte) 0;
-//        out.println(convert(f));
-        int current =  0;
-        for (int i = 0; i <= 255; i++) {
 
-            var a = convert((byte) i);
-            out.println((byte)i+": "+ ((a) ));
-
-        }
+        byte firstNum = (byte) (18 >> 4);       // = 1
+        byte secondNum = (byte) (18 & 0x0f);    // = 2
+        byte thirdNum = (byte) (52 >> 4);       // = 3
+        byte fourthNum = (byte) (52 & 0x0f);    // = 4
+        out.println(firstNum);
+        out.println(secondNum);
+        out.println(thirdNum);
+        out.println(fourthNum);
 
         if (args.length > 0) {
             return;

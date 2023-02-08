@@ -1,4 +1,4 @@
-package packets;
+package model.packets;
 
 public abstract class Packet {
     protected byte type;
@@ -12,7 +12,7 @@ public abstract class Packet {
         return type;
     }
 
-    protected int convertSeqNum(byte seq){
+    protected int convertSeqNumToUnsigned(byte seq){
         return seq & 0xff;
     }
 }

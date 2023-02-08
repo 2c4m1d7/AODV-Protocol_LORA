@@ -1,13 +1,9 @@
-package packets;
+package model.packets;
 
 import org.apache.commons.lang3.ArrayUtils;
 import utils.Converter;
 import utils.MyArrayUtils;
 import utils.Parser;
-
-import java.util.Arrays;
-
-import static packets.RREQ.Flags.U;
 
 public class RREQ extends Packet {
 
@@ -39,9 +35,9 @@ public class RREQ extends Packet {
         this.hopCount = hopCount;
         this.reqId = reqId;
         this.destAddr = destAddr;
-        this.destSeqNum = convertSeqNum(destSeqNum);
+        this.destSeqNum = convertSeqNumToUnsigned(destSeqNum);
         this.oriAddr = oriAddr;
-        this.oriSeqNum = convertSeqNum(oriSeqNum);
+        this.oriSeqNum = convertSeqNumToUnsigned(oriSeqNum);
     }
 
     public RREQ(byte[] paket) {
@@ -52,9 +48,9 @@ public class RREQ extends Packet {
         this.hopCount = paket[2];
         this.reqId = paket[3];
         this.destAddr = MyArrayUtils.getRangeArray(addrPlusSeq, 0, 3);
-        this.destSeqNum = convertSeqNum(addrPlusSeq[4]);
+        this.destSeqNum = convertSeqNumToUnsigned(addrPlusSeq[4]);
         this.oriAddr = MyArrayUtils.getRangeArray(addrPlusSeq, 5, 8);
-        this.oriSeqNum = convertSeqNum(addrPlusSeq[9]);
+        this.oriSeqNum = convertSeqNumToUnsigned(addrPlusSeq[9]);
     }
 
     public byte getFlag() {

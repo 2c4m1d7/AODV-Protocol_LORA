@@ -1,7 +1,7 @@
 import model.Node;
 import model.PacketType;
 import model.SendPacket;
-import packets.UserData;
+import model.packets.UserData;
 import utils.Parser;
 
 import java.util.*;
