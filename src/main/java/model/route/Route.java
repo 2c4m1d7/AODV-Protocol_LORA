@@ -12,7 +12,6 @@ public abstract class Route {
     protected byte hopCount;
     protected int seq;
     protected long lifetime;
-    protected boolean active;
 
     protected boolean validSeqNum;
 
@@ -80,16 +79,9 @@ public abstract class Route {
 
     public abstract boolean isValid();
 
-
-    public boolean isActive() {
-        return active;
+    public  boolean active(){
+        return ((lifetime + Node.DELETE_PERIOD) >= System.currentTimeMillis());
     }
-
-    public Route setActive(boolean active) {
-        this.active = active;
-        return this;
-    }
-
     public void updateLifetimeRREQ() {
         var currentTime = System.currentTimeMillis();
         long minimalLifetime = (currentTime + 2 * Node.NET_TRAVERSAL_TIME - 2 * hopCount * Node.NODE_TRAVERSAL_TIME);
@@ -111,7 +103,7 @@ public abstract class Route {
                 ", seq=" + seq +
                 ", lifetime=" + lifetime +
                 ", valid=" + isValid() +
-                ", active=" + active +
+                ", active=" + active() +
                 '}';
     }
 }

@@ -1,38 +1,35 @@
-[17:29:29] [INFORMATION] 	DEST: FFFF	->	BgAAAAMAAAoA	->	RREQ{type=1, flag=32, hopCount=0, reqId=0, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=0} 
-[17:29:29] [INFORMATION] 
+[23:23:06] [INFORMATION] GOT TO HANDLE: LR,0003,12,BBACAAoAAAMI 
+[23:23:06] [INFORMATION] 
+
+From 0003
+RREQ{type=1, flag=1, hopCount=0, reqId=2, destAddr=000A, destSeqNum=0, oriAddr=0003, oriSeqNum=8}
+ 
+[23:23:06] [INFORMATION] 
 
 ADDR= 000A
-ProcessednullForwardnullReversenull
- 
-[17:29:38] [INFORMATION] 	DEST: FFFF	->	BgABAAMAAAoB	->	RREQ{type=1, flag=32, hopCount=0, reqId=1, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=1} 
-[17:29:38] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForwardnullReversenull
- 
-[17:32:48] [INFORMATION] 	DEST: FFFF	->	BgADAAMAAAoD	->	RREQ{type=1, flag=32, hopCount=0, reqId=3, destAddr=0003, destSeqNum=0, oriAddr=000A, oriSeqNum=3} 
-[17:32:48] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForwardnullReversenull
- 
-[17:32:51] [INFORMATION] GOT TO HANDLE: LR,0006,12,CBdwAAMFAAoH
- 
-[17:32:51] [INFORMATION] 
-
-From 0006
-RREP{type=2, lifeTime=6000, destAddr=0003, destSeqNum=5, oriAddr=000A, hopCount=7}
- 
-[17:32:58] [INFORMATION] 	DEST: 0006	->	AAANoYWxsbw=	->	UserData{destAddr=0003, message='hallo'} 
-[17:32:58] [INFORMATION] 
-
-ADDR= 000A
-ProcessednullForward
+Processed
++----------------------+
+| RREQ_ID | Originator |
++----------------------+
+| 2       | 0003       |
++----------------------+
+Forward
 +--------------------------------------+
 | Dest | Hop  | HopCount | Valid | Seq |
 +--------------------------------------+
-| 0006 | 0006 | 1        | true  | 0   |
-| 0003 | 0006 | 8        | true  | 5   |
+| 0003 | 0003 | 1        | true  | 8   |
 +--------------------------------------+
 Reversenull
+ 
+[23:23:06] [INFORMATION] GOT TO HANDLE: LR,000D,12,BgACAAEAAAMI 
+[23:23:06] [INFORMATION] 
+
+From 000D
+RREQ{type=1, flag=32, hopCount=0, reqId=2, destAddr=0001, destSeqNum=0, oriAddr=0003, oriSeqNum=8}
+ 
+[23:23:06] [INFORMATION] GOT TO HANDLE: LR,000D,12,CABmAAECAAMA 
+[23:23:06] [INFORMATION] 
+
+From 000D
+RREP{type=2, lifeTime=102, destAddr=0001, destSeqNum=2, oriAddr=0003, hopCount=0}
  

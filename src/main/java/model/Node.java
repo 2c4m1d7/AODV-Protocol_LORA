@@ -63,7 +63,7 @@ public class Node {
 
     private static final Set<ProcessedRREQInfo> processedRREQ = new HashSet<>();
     private static  Map<Integer, ForwardRoute> ROUTE_TABLE = new HashMap<>();
-    private static final Map<Integer, ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
+    private static Map<Integer, ReverseRoute> REVERSE_ROUTE_TABLE = new HashMap<>();
     private static byte[] ADDR;
     private static byte REQUEST_ID = 0;
     private static int SEQ_NUM = 0;
@@ -92,7 +92,7 @@ public class Node {
 
     public static boolean updateRouteEntry(ForwardRoute control) {
         Map<Integer, ForwardRoute> tmp = new HashMap<>();
-       ROUTE_TABLE.keySet().stream().filter(x-> ROUTE_TABLE.get(x).isValid()).forEach(x-> {
+       ROUTE_TABLE.keySet().stream().filter(x-> ROUTE_TABLE.get(x).active()).forEach(x-> {
            tmp.put(x, ROUTE_TABLE.get(x));
        });
        ROUTE_TABLE = tmp;
@@ -111,6 +111,12 @@ public class Node {
     }
 
     public static boolean updateReverseRouteEntry(ReverseRoute control) {
+        Map<Integer, ReverseRoute> tmp = new HashMap<>();
+        REVERSE_ROUTE_TABLE.keySet().stream().filter(x-> REVERSE_ROUTE_TABLE.get(x).active()).forEach(x-> {
+            tmp.put(x, REVERSE_ROUTE_TABLE.get(x));
+        });
+        REVERSE_ROUTE_TABLE = tmp;
+
         var entry = REVERSE_ROUTE_TABLE.putIfAbsent(Arrays.hashCode(control.getSourceAddr()), control);
         if (entry != null) {
             if (!entry.isValidSeqNum()
@@ -154,7 +160,7 @@ public class Node {
     }
 
     public static ForwardRoute findRoute(byte[] destAddr) {
-        return ROUTE_TABLE.get(Arrays.hashCode(destAddr)); // destAddr
+        return ROUTE_TABLE.get(Arrays.hashCode(destAddr));
     }
 
 

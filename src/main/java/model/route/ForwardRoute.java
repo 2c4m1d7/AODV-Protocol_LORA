@@ -22,24 +22,6 @@ public class ForwardRoute extends Route {
         this.nextHop = nextHop;
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (o == null || getClass() != o.getClass()) return false;
-//        ForwardRoute that = (ForwardRoute) o;
-//        return Arrays.equals(nextHop, that.nextHop);
-//    }
-//
-//
-//
-//
-//    @Override
-//    public int hashCode() {
-//        return Arrays.hashCode(nextHop);
-//    }
-
-
-
     @Override
     public boolean isValid() {
         return nextHop != null && ((lifetime + Node.DELETE_PERIOD) >= System.currentTimeMillis());
@@ -55,7 +37,7 @@ public class ForwardRoute extends Route {
                 ", seq=" + seq +
                 ", lifetime=" + lifetime +
                 ", valid=" + isValid() +
-                ", active=" + active +
+                ", active=" + active() +
                 '}';
     }
 }

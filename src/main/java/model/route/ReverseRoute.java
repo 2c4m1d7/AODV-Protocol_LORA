@@ -49,7 +49,7 @@ public class ReverseRoute extends Route {
                 ", seq=" + seq +
                 ", lifetime=" + lifetime +
                 ", valid=" + isValid() +
-                ", active=" + active +
+                ", active=" + active() +
                 '}';
     }
 }

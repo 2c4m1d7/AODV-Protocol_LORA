@@ -61,7 +61,7 @@ public class ProtocolTest {
         var reverseRoute = Node.findReverseRoute(expectedReverseRoute.getSourceAddr());
         assertEquals(expectedReverseRoute, reverseRoute);
 
-        var expectedForwardRoute = new ForwardRoute(new byte[]{0, 0, 0, 1}, new byte[]{0, 0, 0, 3}, (byte) 0x40, expectedRREQ.getDestSeqNum(), null, false);
+        var expectedForwardRoute = new ForwardRoute(new byte[]{0, 0, 0, 1}, new byte[]{0, 0, 0, 3}, (byte) 0, expectedRREQ.getDestSeqNum(), null, false);
         var forwardRoute = Node.findRoute(expectedForwardRoute.getDestAddr());
         assertArrayEquals(expectedForwardRoute.getNextHop(), forwardRoute.getNextHop());
         assertArrayEquals(expectedForwardRoute.getDestAddr(), forwardRoute.getDestAddr());
