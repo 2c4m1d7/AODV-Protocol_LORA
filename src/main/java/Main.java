@@ -1,6 +1,7 @@
 import com.fazecast.jSerialComm.SerialPort;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static java.lang.System.*;
 import static java.lang.System.out;
@@ -11,6 +12,11 @@ public class Main {
 
 
     public static void main(String[] args) {
+
+        out.println(Stream.of(new String[1-1]).reduce("?", (a, b) -> a + ", ?" ));
+
+        if (args.length > 0)
+            return;
 
         Connection connection = null;
         while (true) {
